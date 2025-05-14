@@ -14,15 +14,19 @@ function App() {
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Personal Finance Tracker</h1>
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={500}>
         <BarChart data={transactions}>
           <XAxis dataKey="category" />
           <YAxis />
           <Tooltip />
+          <button></button>
           <Bar dataKey="amount" fill="#8884d8" />
         </BarChart>
       </ResponsiveContainer>
     </div>
+
+
+
   );
 }
 
