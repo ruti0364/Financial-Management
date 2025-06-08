@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import IncomeForm from './income/income';
 
 function App() {
   const [transactions, setTransactions] = useState([]);
@@ -22,6 +23,7 @@ function App() {
           <Bar dataKey="amount" fill="#8884d8" />
         </BarChart>
       </ResponsiveContainer>
+      <IncomeForm></IncomeForm>
     </div>
   );
 }
