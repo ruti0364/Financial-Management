@@ -30,7 +30,6 @@ function App() {
           <XAxis dataKey="category" />
           <YAxis />
           <Tooltip />
-          <button></button>
           <Bar dataKey="amount" fill="#8884d8" />
         </BarChart>
       </ResponsiveContainer> */}
@@ -41,9 +40,6 @@ function App() {
       </select>
       <TransactionForm type={type} onTransactionAdded={handleTransactionAdded} />
     </div>
-
-
-
   );
 }
 
