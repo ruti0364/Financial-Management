@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import Register from './component/Register';
+import Login from './component/Login';
 
 function App() {
   const [transactions, setTransactions] = useState([]);
@@ -14,14 +16,17 @@ function App() {
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Personal Finance Tracker</h1>
-      <ResponsiveContainer width="100%" height={300}>
+      <Register></Register>
+      <Login></Login>
+      
+      {/* <ResponsiveContainer width="100%" height={300}>
         <BarChart data={transactions}>
           <XAxis dataKey="category" />
           <YAxis />
           <Tooltip />
           <Bar dataKey="amount" fill="#8884d8" />
         </BarChart>
-      </ResponsiveContainer>
+      </ResponsiveContainer> */}
     </div>
   );
 }

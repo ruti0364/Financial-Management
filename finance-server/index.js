@@ -4,12 +4,19 @@ const cors = require('cors');
 require('dotenv').config();
 
 const transactionRoutes = require('./routes/transactions');
+const registerRoute = require('./routes/register');
+const loginRoute = require('./routes/login');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/register', registerRoute);
+app.use('/api/login', loginRoute);
+
+
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
