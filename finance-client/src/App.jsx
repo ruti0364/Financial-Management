@@ -3,8 +3,8 @@ import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import Register from './component/Register';
 import Login from './component/Login';
-import TransactionForm from './transactionForm/transactionForm';
-import SavingsGoals from './components/savingGoals/SavingsGoals';
+import TransactionForm from './components/goals/transaction/transactionForm';
+import SavingsGoals from './components/goals/SavingsGoals';
 
 function App() {
 
