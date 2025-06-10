@@ -30,15 +30,7 @@ function App() {
       <h1 className="text-xl font-bold mb-4">Personal Finance Tracker</h1>
       <Register></Register>
       <Login></Login>
-      
-      {/* {/* <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={transactions}>
-          <XAxis dataKey="category" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="amount" fill="#8884d8" />
-        </BarChart>
-      </ResponsiveContainer> */}
+
         <h2>Choose Transaction Type</h2>
       <select value={type} onChange={e => setType(e.target.value)}>
         <option value="expense">Expense</option>
