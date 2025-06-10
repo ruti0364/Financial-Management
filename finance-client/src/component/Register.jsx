@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useDispatch } from 'react-redux';
 import { setUserId } from '../redux/userSlice';
 
 export default function Register() {
   const dispatch = useDispatch();
+  const usernameInputRef = useRef(null);
+
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -16,7 +18,12 @@ export default function Register() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  useEffect(() => {
+    usernameInputRef.current?.focus(); // פוקוס אוטומטי על שדה ראשון
+  }, []);
+
+  const validateEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const validateForm = () => {
     const newErrors = {};
@@ -42,8 +49,9 @@ export default function Register() {
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: '' });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: '' }));
     setMessage('');
     setError('');
   };
@@ -59,12 +67,14 @@ export default function Register() {
     try {
       const res = await axios.post('http://localhost:5000/api/register', formData);
 
-      setMessage('Registration successful!');
+      setMessage('🎉 Registration successful!');
       dispatch(setUserId(res.data.userId));
       localStorage.setItem('userId', res.data.userId);
-      setFormData({ username: '', email: '', password: '' });
 
+      setFormData({ username: '', email: '', password: '' });
     } catch (err) {
+      setFormData((prev) => ({ ...prev, password: '' })); // אבטחה: נקה סיסמה
+
       if (err.response?.status === 409) {
         setErrors({ email: 'Email already exists' });
       } else {
@@ -84,6 +94,7 @@ export default function Register() {
           <input
             type="text"
             name="username"
+            ref={usernameInputRef}
             value={formData.username}
             onChange={handleChange}
             required
@@ -111,17 +122,21 @@ export default function Register() {
             value={formData.password}
             onChange={handleChange}
             required
+            placeholder="6+ characters"
           />
           {errors.password && <p style={{ color: 'red' }}>{errors.password}</p>}
         </div>
 
-        <button type="submit" disabled={loading}>
+        <button
+          type="submit"
+          disabled={loading || !formData.username || !formData.email || !formData.password}
+        >
           {loading ? 'Registering...' : 'Register'}
         </button>
       </form>
 
-      {message && <p style={{ color: 'green' }}>{message}</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {message && <p style={{ color: 'green', marginTop: '10px' }}>{message}</p>}
+      {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
     </div>
   );
 }

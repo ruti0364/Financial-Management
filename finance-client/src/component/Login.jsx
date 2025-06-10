@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { setUserId } from '../redux/userSlice';
 
 export default function Login() {
   const dispatch = useDispatch();
+  const emailInputRef = useRef(null);
+
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    emailInputRef.current?.focus();
+  }, []);
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -24,12 +30,13 @@ export default function Login() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: '' });
+  const handleChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: '' }));
     setMessage('');
     setError('');
-  };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,26 +48,31 @@ export default function Login() {
 
     try {
       const res = await axios.post('http://localhost:5000/api/login', formData);
-      setMessage('Login successful!');
+      setMessage('🎉 Login successful!');
       dispatch(setUserId(res.data.userId));
       localStorage.setItem('userId', res.data.userId);
       setFormData({ email: '', password: '' });
     } catch (err) {
+      setFormData((prev) => ({ ...prev, password: '' })); // אבטחה: ניקוי סיסמה
       setError(err.response?.data?.error || 'Login failed.');
     } finally {
       setLoading(false);
     }
   };
 
+  const isFormIncomplete = !formData.email || !formData.password;
+
   return (
     <div style={{ maxWidth: '400px', margin: '0 auto' }}>
       <h2>Login Form</h2>
       <form onSubmit={handleSubmit} noValidate>
         <div>
-          <label>Email:</label><br />
+          <label htmlFor="email">Email:</label><br />
           <input
             type="email"
+            id="email"
             name="email"
+            ref={emailInputRef}
             value={formData.email}
             onChange={handleChange}
             required
@@ -69,9 +81,10 @@ export default function Login() {
         </div>
 
         <div>
-          <label>Password:</label><br />
+          <label htmlFor="password">Password:</label><br />
           <input
             type="password"
+            id="password"
             name="password"
             value={formData.password}
             onChange={handleChange}
@@ -80,13 +93,13 @@ export default function Login() {
           {errors.password && <p style={{ color: 'red' }}>{errors.password}</p>}
         </div>
 
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading || isFormIncomplete}>
           {loading ? 'Logging in...' : 'Login'}
         </button>
       </form>
 
-      {message && <p style={{ color: 'green' }}>{message}</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {message && <p style={{ color: 'green', marginTop: 10 }}>{message}</p>}
+      {error && <p style={{ color: 'red', marginTop: 10 }}>{error}</p>}
     </div>
   );
 }
