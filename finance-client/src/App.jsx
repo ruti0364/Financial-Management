@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import IncomeForm from './income/income';
+import SavingsGoals from './components/savingGoals/SavingsGoals';
 
 function App() {
   const [transactions, setTransactions] = useState([]);
@@ -24,6 +25,7 @@ function App() {
         </BarChart>
       </ResponsiveContainer>
       <IncomeForm></IncomeForm>
+      <SavingsGoals></SavingsGoals>
     </div>
   );
 }
