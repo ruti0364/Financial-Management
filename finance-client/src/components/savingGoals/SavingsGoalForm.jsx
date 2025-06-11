@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 
 export default function SavingsGoalForm({ goal, onClose, onSave }) {
+  const userId = useSelector((state) => state.user.userId);
+
   const [title, setTitle] = useState(goal ? goal.title : "");
   const [targetAmount, setTargetAmount] = useState(goal ? goal.targetAmount : "");
 
@@ -16,15 +19,17 @@ export default function SavingsGoalForm({ goal, onClose, onSave }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const method = goal ? "PUT" : "POST";
-    const url = goal ? `/api/goals/${goal._id}` : "/api/goals";
+    const url = goal
+      ? `http://localhost:5000/api/goals/${goal._id}`
+      : "http://localhost:5000/api/goals";
+
 
     try {
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, targetAmount }),
+        body: JSON.stringify({ title, targetAmount, userId }),
       });
 
       if (!response.ok) throw new Error("Failed to save");
@@ -32,16 +37,16 @@ export default function SavingsGoalForm({ goal, onClose, onSave }) {
       onSave();
       onClose();
     } catch (err) {
-      alert("שגיאה בשמירה");
+      alert("saving error");
     }
   };
 
   return (
     <form onSubmit={handleSubmit} style={{ border: "1px solid #ccc", padding: "10px", marginTop: "20px" }}>
-      <h3>{goal ? "ערוך יעד חיסכון" : "הוסף יעד חיסכון חדש"}</h3>
+      <h3>{goal ? "edit a saving goal" : "add a new saving goal"}</h3>
       <input
         type="text"
-        placeholder="שם היעד"
+        placeholder="goal name"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         required
@@ -49,7 +54,7 @@ export default function SavingsGoalForm({ goal, onClose, onSave }) {
       <br />
       <input
         type="number"
-        placeholder="סכום יעד"
+        placeholder="goal amount"
         value={targetAmount}
         onChange={(e) => setTargetAmount(e.target.value)}
         required
@@ -57,10 +62,10 @@ export default function SavingsGoalForm({ goal, onClose, onSave }) {
       />
       <br />
       <button type="submit" style={{ marginRight: "10px" }}>
-        שמור
+        save
       </button>
       <button type="button" onClick={onClose}>
-        ביטול
+        cancel
       </button>
     </form>
   );
