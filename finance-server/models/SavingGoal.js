@@ -18,6 +18,17 @@ const savingGoalSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  autoSaving: {
+    amount: {
+      type: Number,
+      default: 0
+    },
+    frequency: {
+      type: String,
+      enum: ['weekly', 'monthly', 'yearly', 'none'],
+      default: 'none'
+    }
+  },
   createdAt: {
     type: Date,
     default: Date.now
