@@ -19,7 +19,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    usernameInputRef.current?.focus(); // פוקוס אוטומטי על שדה ראשון
+    usernameInputRef.current?.focus();
   }, []);
 
   const validateEmail = (email) =>
@@ -65,15 +65,15 @@ export default function Register() {
     setError('');
 
     try {
-      const res = await axios.post('http://localhost:5000/api/register', formData);
+      const res = await axios.post('http://localhost:5000/api/user/register', formData);
 
-      setMessage('🎉 Registration successful!');
+      setMessage('Registration successful!');
       dispatch(setUserId(res.data.userId));
       localStorage.setItem('userId', res.data.userId);
 
       setFormData({ username: '', email: '', password: '' });
     } catch (err) {
-      setFormData((prev) => ({ ...prev, password: '' })); // אבטחה: נקה סיסמה
+      setFormData((prev) => ({ ...prev, password: '' }));
 
       if (err.response?.status === 409) {
         setErrors({ email: 'Email already exists' });

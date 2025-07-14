@@ -3,6 +3,7 @@ import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import Register from './component/Register';
 import Login from './component/Login';
+import Profile from './component/Profile';
 import TransactionForm from './components/transaction/transactionForm';
 import TransactionTable from './components/transaction/transactionTable/transactionTable';
 import SavingsGoals from './components/goals/SavingsGoals';
@@ -33,7 +34,7 @@ function App() {
       <h1 className="text-xl font-bold mb-4">Personal Finance Tracker</h1>
       <Register></Register>
       <Login></Login>
-
+<Profile></Profile>
         {/* <h2>Choose Transaction Type</h2>
       <select value={type} onChange={e => setType(e.target.value)}>
         <option value="expense">Expense</option>
