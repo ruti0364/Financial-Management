@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
-const transactionRoutes = require('./routes/transactions');
 const registerRoute = require('./routes/register');
 const loginRoute = require('./routes/login');
 const incomeRoutes = require('./routes/transaction.routes');
@@ -14,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 
-app.use('/api/transactions', transactionRoutes);
+app.use('/api/transactions', incomeRoutes);
 app.use('/api/register', registerRoute);
 app.use('/api/login', loginRoute);
 
