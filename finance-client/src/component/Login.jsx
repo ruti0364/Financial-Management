@@ -47,13 +47,13 @@ export default function Login() {
     setError('');
 
     try {
-      const res = await axios.post('http://localhost:5000/api/login', formData);
-      setMessage('🎉 Login successful!');
+      const res = await axios.post('http://localhost:5000/api/user/login', formData);
+      setMessage('Login successful!');
       dispatch(setUserId(res.data.userId));
       localStorage.setItem('userId', res.data.userId);
       setFormData({ email: '', password: '' });
     } catch (err) {
-      setFormData((prev) => ({ ...prev, password: '' })); // אבטחה: ניקוי סיסמה
+      setFormData((prev) => ({ ...prev, password: '' }));
       setError(err.response?.data?.error || 'Login failed.');
     } finally {
       setLoading(false);

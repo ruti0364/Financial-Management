@@ -3,6 +3,7 @@ import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import Register from './component/Register';
 import Login from './component/Login';
+import Profile from './component/Profile';
 import TransactionForm from './transactionForm/transactionForm';
 import SavingsGoals from './components/savingGoals/SavingsGoals';
 
@@ -30,7 +31,7 @@ function App() {
       <h1 className="text-xl font-bold mb-4">Personal Finance Tracker</h1>
       <Register></Register>
       <Login></Login>
-      
+      <Profile></Profile>
       {/* {/* <ResponsiveContainer width="100%" height={300}>
         <BarChart data={transactions}>
           <XAxis dataKey="category" />
