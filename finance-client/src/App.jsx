@@ -3,14 +3,18 @@ import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import Register from './component/Register';
 import Login from './component/Login';
-import TransactionForm from './transactionForm/transactionForm';
-import SavingsGoals from './components/savingGoals/SavingsGoals';
-
+import Profile from './component/Profile';
+import TransactionForm from './components/transaction/transactionForm';
+import TransactionTable from './components/transaction/transactionTable/transactionTable';
+import SavingsGoals from './components/goals/SavingsGoals';
+import ExpenseCategoryChart from './components/transaction/TransactionCharts/ExpenseCategoryChart';
+import TransactionChart from './components/transaction/TransactionCharts/TransactionChart';
 function App() {
 
 
   const [type, setType] = useState('expense');
   const [transactions, setTransactions] = useState([]);
+  const [refresh, setRefresh] = React.useState(false);
 
   const fetchTransactions = async () => {
     const res = await axios.get('http://localhost:5000/api/transactions');
@@ -24,27 +28,30 @@ function App() {
   const handleTransactionAdded = () => {
     fetchTransactions();
   };
-
+ const handleAdded = () => setRefresh(prev => !prev);
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Personal Finance Tracker</h1>
       <Register></Register>
       <Login></Login>
-      
-      {/* {/* <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={transactions}>
-          <XAxis dataKey="category" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="amount" fill="#8884d8" />
-        </BarChart>
-      </ResponsiveContainer> */}
-        <h2>Choose Transaction Type</h2>
+<Profile></Profile>
+        {/* <h2>Choose Transaction Type</h2>
       <select value={type} onChange={e => setType(e.target.value)}>
         <option value="expense">Expense</option>
         <option value="income">Income</option>
       </select>
-      <TransactionForm type={type} onTransactionAdded={handleTransactionAdded} />
+      <TransactionForm type={type} onTransactionAdded={handleTransactionAdded} /> */}
+
+
+      <div>
+      {/* <button onClick={() => setType('income')}>Income</button>
+      <button onClick={() => setType('expense')}>Expense</button> */}
+
+      {/* <TransactionForm type={type} onTransactionAdded={handleAdded} /> */}
+      <TransactionTable key={refresh} />
+      <ExpenseCategoryChart />
+      <TransactionChart />
+    </div>
       <SavingsGoals></SavingsGoals>
     </div>
   );
