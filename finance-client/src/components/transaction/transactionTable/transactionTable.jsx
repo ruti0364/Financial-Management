@@ -114,14 +114,22 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
 const exportToExcel = (transactions) => {
-  // 1. ממירים את המידע לגיליון
-  const worksheet = XLSX.utils.json_to_sheet(transactions);
+  // יוצרים מערך חדש עם הנתונים הרצויים בלבד
+  const filteredData = transactions.map(({ _id, type, sum, date, category }) => ({
+    Type: type,
+    Sum: sum,
+    Date: date?.slice(0, 10),
+    Category: category || '-', // אם אין קטגוריה – מציגים קו
+  }));
 
-  // 2. יוצרים חוברת עבודה
+  // ממירים את המידע לגיליון
+  const worksheet = XLSX.utils.json_to_sheet(filteredData);
+
+  // יוצרים חוברת עבודה ומוסיפים את הגיליון
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Transactions');
 
-  // 3. ממירים לקובץ ומורידים
+  // ממירים לקובץ ומורידים
   const excelBuffer = XLSX.write(workbook, {
     bookType: 'xlsx',
     type: 'array',
