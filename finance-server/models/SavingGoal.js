@@ -28,11 +28,8 @@ const savingGoalSchema = new mongoose.Schema({
       enum: ['weekly', 'monthly', 'yearly', 'none'],
       default: 'none'
     }
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+   }
+ 
+},{timestamps:true});
 
 module.exports = mongoose.model('SavingGoal', savingGoalSchema);

@@ -13,6 +13,9 @@ mongoose.connect(process.env.MONGO_URI, {
 
 function shouldUpdateGoal(lastUpdatedAt, frequency) {
     const now = new Date();
+    // if (!lastUpdatedAt) {
+    //     return true;
+    // }
     const last = new Date(lastUpdatedAt);
 
     switch (frequency) {
@@ -30,9 +33,9 @@ function shouldUpdateGoal(lastUpdatedAt, frequency) {
 }
 
 
-// משימת cron – תרוץ כל יום בחצות (תעדכני בהתאם לצורך)
+// משימת cron – תרוץ כל יום בחצות 
 cron.schedule("0 0 * * *", async () => {
-// cron.schedule("* * * * *", async () => {//לצורך בדיקה שישתנה כל דקה
+    // cron.schedule("* * * * *", async () => {//לצורך בדיקה שישתנה כל דקה
 
     console.log("Running daily auto-saving update...");
 
@@ -42,6 +45,8 @@ cron.schedule("0 0 * * *", async () => {
         for (let goal of goals) {
             if (shouldUpdateGoal(goal.updatedAt, goal.autoSaving.frequency)) {
                 goal.currentAmount += goal.autoSaving.amount;
+                goal.updatedAt = Date.now();
+
                 await goal.save();
                 console.log(`Updated goal ${goal.title} with +${goal.autoSaving.amount}`);
             }
