@@ -1,4 +1,3 @@
-// const Transaction = require('../models/Transaction');
 const User = require('../models/User');
 const transactionmodel = require('../models/transaction.model');
 const SavingGoal = require('../models/SavingGoal');
