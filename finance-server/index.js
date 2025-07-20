@@ -4,11 +4,12 @@ const cors = require('cors');
 require('dotenv').config();
 require('./autoSavingCron'); 
 
-const transactionRoutes = require('./routes/transactions');
-const registerRoute = require('./routes/register');
-const loginRoute = require('./routes/login');
+
+const userRoutes = require('./routes/userRoutes');
 const incomeRoutes = require('./routes/transaction.routes');
 const metaRoutes = require('./routes/metaRoutes');
+const profileRoute = require('./routes/profileRoutes.js');
+
 const savingsGoalsRoutes = require('./routes/savingGoals');
 
 const app = express();
@@ -16,9 +17,9 @@ app.use(cors());
 app.use(express.json());
 
 
-app.use('/api/transactions', transactionRoutes);
-app.use('/api/register', registerRoute);
-app.use('/api/login', loginRoute);
+app.use('/api/transactions', incomeRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/profile', profileRoute);
 
 
 app.use('/api/income', incomeRoutes);
