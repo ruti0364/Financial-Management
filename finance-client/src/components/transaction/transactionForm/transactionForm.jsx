@@ -97,6 +97,8 @@
 // export default TransactionForm;
 import React, { useEffect, useState } from 'react';
 import { getExpenseCategories } from 'api/transactionApi';
+import './transactionForm.css';
+
 
 const TransactionForm = ({ mode = 'create', initialData = null, onSubmit, onCancel }) => {
   const isEdit = mode === 'edit';
