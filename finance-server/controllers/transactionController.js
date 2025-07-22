@@ -5,7 +5,6 @@ const Transaction = require('../models/transaction.model');
 const addTransaction = async (req, res) => {
   try {
     const { type, sum, date, category } = req.body;
-    console.log(req.body);
     const transaction = new Transaction({
       type,
       sum,
