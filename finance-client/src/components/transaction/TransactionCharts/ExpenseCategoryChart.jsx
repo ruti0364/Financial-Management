@@ -8,28 +8,35 @@ const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7f50', '#00bcd4', '#d0ed57'
 
 const ExpenseCategoryChart = () => {
   const [data, setData] = useState([]);
+  const [startDate, setStartDate] = useState(getFirstDayOfCurrentMonth());
+  const [endDate, setEndDate] = useState(getLastDayOfCurrentMonth());
+  const [customRange, setCustomRange] = useState(false);
 
   useEffect(() => {
     fetchCategoryData();
-  }, []);
+  }, [startDate, endDate]);
 
   const fetchCategoryData = async () => {
     try {
       const res = await getAllTransactions();
       const transactions = res.data;
 
-      // סינון רק הוצאות
-      const expenses = transactions.filter(tx => tx.type === 'expense');
+      const expenses = transactions.filter(tx => {
+        const date = new Date(tx.date);
+        return (
+          tx.type === 'expense' &&
+          date >= new Date(startDate) &&
+          date <= new Date(endDate)
+        );
+      });
 
-      // חישוב סכום לכל קטגוריה
       const grouped = expenses.reduce((acc, tx) => {
         const category = tx.category || 'לא מוגדר';
         acc[category] = (acc[category] || 0) + Number(tx.sum);
         return acc;
       }, {});
 
-      // המרה למערך מתאים לגרף
-      const chartData = Object.keys(grouped).map((key) => ({
+      const chartData = Object.keys(grouped).map(key => ({
         name: key,
         value: grouped[key],
       }));
@@ -40,9 +47,76 @@ const ExpenseCategoryChart = () => {
     }
   };
 
+  // תאריכים של החודש הנוכחי
+  function getFirstDayOfCurrentMonth() {
+    const date = new Date();
+    date.setDate(1);
+    return date.toISOString().split('T')[0];
+  }
+
+  function getLastDayOfCurrentMonth() {
+    const date = new Date();
+    date.setMonth(date.getMonth() + 1);
+    date.setDate(0);
+    return date.toISOString().split('T')[0];
+  }
+
+  const resetToCurrentMonth = () => {
+    setStartDate(getFirstDayOfCurrentMonth());
+    setEndDate(getLastDayOfCurrentMonth());
+    setCustomRange(false);
+  };
+const formatDate = (isoStr) => {
+  const date = new Date(isoStr);
+  return date.toLocaleDateString('he-IL', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+};
   return (
-    <div style={{ width: '100%', height: 350 }}>
-      <h3 style={{ textAlign: 'center' }}>התפלגות הוצאות לפי קטגוריות</h3>
+    <div style={{ width: '100%', height: 420 }}>
+      <h3 style={{ textAlign: 'center' }}>
+        התפלגות הוצאות לפי קטגוריות
+        <br />
+        <span style={{ fontSize: '0.9em', color: '#555' }}>
+          {formatDate(startDate)} - {formatDate(endDate)}
+        </span>
+      </h3>
+
+
+      <div style={{ textAlign: 'center', marginBottom: 12 }}>
+        {!customRange ? (
+          <button onClick={() => setCustomRange(true)}>
+            בחר טווח תאריכים
+          </button>
+        ) : (
+          <>
+            <label>
+              מ־
+              <input
+                type="date"
+                value={startDate}
+                onChange={e => setStartDate(e.target.value)}
+                style={{ marginInline: 8 }}
+              />
+            </label>
+            <label>
+              עד
+              <input
+                type="date"
+                value={endDate}
+                onChange={e => setEndDate(e.target.value)}
+                style={{ marginInline: 8 }}
+              />
+            </label>
+            <button onClick={resetToCurrentMonth} style={{ marginInlineStart: 12 }}>
+              איפוס לחודש נוכחי
+            </button>
+          </>
+        )}
+      </div>
+
       <ResponsiveContainer>
         <PieChart>
           <Pie
@@ -67,3 +141,5 @@ const ExpenseCategoryChart = () => {
 };
 
 export default ExpenseCategoryChart;
+
+

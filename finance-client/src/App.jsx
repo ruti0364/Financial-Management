@@ -4,12 +4,12 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recha
 import Register from './component/Register';
 import Login from './component/Login';
 import Profile from './component/Profile';
-import TransactionForm from './components/transaction/transactionForm';
+import TransactionForm from './components/transaction/transactionForm/transactionForm';
 import TransactionTable from './components/transaction/transactionTable/transactionTable';
 import SavingsGoals from './components/goals/SavingsGoals';
 import ExpenseCategoryChart from './components/transaction/TransactionCharts/ExpenseCategoryChart';
 import TransactionChart from './components/transaction/TransactionCharts/TransactionChart';
-import TransactionTableFilter from './components/transaction/BalanceSummary/BalanceSummary';
+import BalanceSummary from './components/transaction/BalanceSummary/BalanceSummary'; 
 function App() {
 
 
@@ -29,7 +29,7 @@ function App() {
   const handleTransactionAdded = () => {
     fetchTransactions();
   };
-  const handleAdded = () => setRefresh(prev => !prev);
+   const handleAdded = () => setRefresh(prev => !prev);
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Personal Finance Tracker</h1>
@@ -45,15 +45,15 @@ function App() {
 
 
       <div>
-        {/* <button onClick={() => setType('income')}>Income</button>
+          {/* <button onClick={() => setType('income')}>Income</button>
       <button onClick={() => setType('expense')}>Expense</button> */}
 
-        {/* <TransactionForm type={type} onTransactionAdded={handleAdded} /> */}
-        <TransactionTable key={refresh} />
-        <ExpenseCategoryChart />
-        <TransactionChart />
-        <TransactionTableFilter/>
-      </div>
+          {/* <TransactionForm type={type} onTransactionAdded={handleAdded} /> */}
+          <TransactionTable key={refresh} />
+          <ExpenseCategoryChart />
+          <TransactionChart />
+        <BalanceSummary/>
+        </div>
       <SavingsGoals></SavingsGoals>
     </div>
   );

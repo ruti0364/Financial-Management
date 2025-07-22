@@ -117,7 +117,7 @@ import {
   updateTransaction,
   deleteTransaction,
 } from 'api/transactionApi';
-import TransactionForm from 'components/transaction/transactionForm';
+// import TransactionForm from 'components/transaction/transactionForm';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
@@ -126,7 +126,7 @@ const getToday = () => {
   return today.toISOString().split('T')[0];
 };
 
-const TransactionTableFilter = () => {
+const BalanceSummary = () => {
   const [transactions, setTransactions] = useState([]);
   const [editTx, setEditTx] = useState(null);
   const [selectedValue, setSelectedValue] = useState('');
@@ -204,4 +204,4 @@ const TransactionTableFilter = () => {
   );
 };
 
-export default TransactionTableFilter;
+export default BalanceSummary;
