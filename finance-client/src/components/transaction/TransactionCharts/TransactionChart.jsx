@@ -27,28 +27,32 @@ const TransactionChart = () => {
     }
   };
 
-  const filterAndPrepareData = () => {
-    const fromDate = new Date(from);
-    const toDate = new Date(to);
+ const filterAndPrepareData = () => {
+  const fromDate = new Date(from);
+  const toDate = new Date(to);
 
-    const filtered = transactions.filter(tx => {
-      const txDate = new Date(tx.date);
-      return txDate >= fromDate && txDate <= toDate;
-    });
+  const filtered = transactions.filter(tx => {
+    const txDate = new Date(tx.date);
+    return txDate >= fromDate && txDate <= toDate;
+  });
 
-    const incomeSum = filtered
-      .filter(tx => tx.type === 'income')
-      .reduce((acc, tx) => acc + Number(tx.sum), 0);
+  const incomeSum = filtered
+    .filter(tx => tx.type === 'income')
+    .reduce((acc, tx) => acc + Number(tx.sum), 0);
 
-    const expenseSum = filtered
-      .filter(tx => tx.type === 'expense')
-      .reduce((acc, tx) => acc + Number(tx.sum), 0);
+  const expenseSum = filtered
+    .filter(tx => tx.type === 'expense')
+    .reduce((acc, tx) => acc + Number(tx.sum), 0);
 
-    setData([
-      { name: 'הכנסות', סכום: incomeSum },
-      { name: 'הוצאות', סכום: expenseSum },
-    ]);
-  };
+  setData([
+    {
+      name: 'סה"כ',
+      income: incomeSum,
+      expense: expenseSum,
+    }
+  ]);
+};
+
 
   return (
     <div>
@@ -80,9 +84,11 @@ const TransactionChart = () => {
             <YAxis />
             <Tooltip />
             <Legend />
-            <Bar dataKey="סכום" fill="#4caf50" />
+            <Bar dataKey="income" fill="#4caf50" name="הכנסות" />
+            <Bar dataKey="expense" fill="#f44336" name="הוצאות" />
           </BarChart>
         </ResponsiveContainer>
+
       </div>
     </div>
   );

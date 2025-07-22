@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
+// require('./autoSavingCron'); 
 
 
 const userRoutes = require('./routes/userRoutes');
@@ -9,6 +10,7 @@ const incomeRoutes = require('./routes/transaction.routes');
 const metaRoutes = require('./routes/metaRoutes');
 const profileRoute = require('./routes/profileRoutes.js');
 
+const savingsGoalsRoutes = require('./routes/savingGoals');
 
 const app = express();
 app.use(cors());
@@ -22,6 +24,9 @@ app.use('/api/profile', profileRoute);
 
 app.use('/api/income', incomeRoutes);
 app.use('/api/meta', metaRoutes);
+
+app.use('/api/goals', savingsGoalsRoutes);
+
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,

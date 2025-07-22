@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import SavingsGoalForm from "./SavingsGoalForm";
+import { useSelector } from "react-redux";
 
 export default function SavingsGoals() {
+  const userId = useSelector((state) => state.user.userId);
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -9,13 +11,16 @@ export default function SavingsGoals() {
   const [selectedGoal, setSelectedGoal] = useState(null);
 
   useEffect(() => {
-    fetchGoals();
-  }, []);
+    if (userId) {
+      fetchGoals();
+    }
+  }, [userId]);
 
   const fetchGoals = async () => {
     try {
-      const response = await fetch("/api/goals");
+      const response = await fetch(`http://localhost:5000/api/goals?userId=${userId}`);
       if (!response.ok) throw new Error("Failed to fetch goals");
+
       const data = await response.json();
       setGoals(data);
       setLoading(false);
@@ -25,15 +30,16 @@ export default function SavingsGoals() {
     }
   };
 
+
   const handleDelete = async (id) => {
-    if (!window.confirm("בטוח שברצונך למחוק את היעד?")) return;
+    if (!window.confirm("are you shure you want to delete the goal?")) return;
 
     try {
-      const response = await fetch(`/api/goals/${id}`, { method: "DELETE" });
+      const response = await fetch(`http://localhost:5000/api/goals/${id}`, { method: "DELETE" });
       if (!response.ok) throw new Error("Failed to delete goal");
       fetchGoals();
     } catch (err) {
-      alert("שגיאה במחיקה");
+      alert(" error in delete");
     }
   };
 
@@ -49,12 +55,12 @@ export default function SavingsGoals() {
 
   return (
     <div style={{ maxWidth: "500px", margin: "auto" }}>
-      <h2>ניהול יעדי חיסכון</h2>
+      <h2>Savings goal management</h2>
 
-      {loading && <p>טוען יעדים...</p>}
+      {loading && <p>loading goals...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <button onClick={handleAddNew}>הוסף יעד חדש</button>
+      <button onClick={handleAddNew}>add new goal</button>
 
       <ul style={{ listStyle: "none", padding: 0 }}>
         {goals.map((goal) => (
@@ -64,9 +70,9 @@ export default function SavingsGoals() {
             {goal.currentAmount} / {goal.targetAmount}
             <br />
             <button onClick={() => handleEdit(goal)} style={{ marginRight: "10px" }}>
-              ערוך
+              edit
             </button>
-            <button onClick={() => handleDelete(goal._id)}>מחק</button>
+            <button onClick={() => handleDelete(goal._id)}>delete</button>
           </li>
         ))}
       </ul>

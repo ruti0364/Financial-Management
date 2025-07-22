@@ -18,10 +18,18 @@ const savingGoalSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+  autoSaving: {
+    amount: {
+      type: Number,
+      default: 0
+    },
+    frequency: {
+      type: String,
+      enum: ['weekly', 'monthly', 'yearly', 'none'],
+      default: 'none'
+    }
+   }
+ 
+},{timestamps:true});
 
 module.exports = mongoose.model('SavingGoal', savingGoalSchema);

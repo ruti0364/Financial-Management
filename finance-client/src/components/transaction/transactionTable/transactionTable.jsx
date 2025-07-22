@@ -102,6 +102,8 @@
 // };
 
 // export default TransactionTable;
+ 
+
 import React, { useEffect, useState } from 'react';
 import {
   getAllTransactions,
@@ -109,7 +111,7 @@ import {
   updateTransaction,
   deleteTransaction,
 } from 'api/transactionApi';
-import TransactionForm from 'components/transaction/transactionForm';
+import TransactionForm from 'components/transaction/transactionForm/transactionForm';
 import Modal from 'components/transaction/Modal';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
@@ -136,6 +138,14 @@ const TransactionsPage = () => {
   const [editTx, setEditTx] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState('');
+
+  const handleSelectChange = (event) => {
+    setSelectedValue(event.target.value);
+  };
+
+  const filteredTransactions = transactions.filter(
+    (tx) => !selectedValue || tx.type === selectedValue
+  );
 
   const fetchTransactions = async () => {
     const res = await getAllTransactions();
@@ -172,22 +182,19 @@ const TransactionsPage = () => {
     setIsModalOpen(false);
   };
 
-  const handleSelectChange = (e) => {
-    setSelectedValue(e.target.value);
-  };
-
-  const filteredTransactions = transactions.filter(
-    (tx) => !selectedValue || tx.type === selectedValue
-  );
-
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Transactions</h1>
 
-      <TransactionForm mode="create" onSubmit={handleCreate} />
+      {/* טופס Add קבוע */}
+      <TransactionForm
+        mode="create"
+        onSubmit={handleCreate}
+      />
 
       <h2 className="text-lg mt-6 mb-2 font-semibold">סינון לפי סוג</h2>
-      <select value={selectedValue} onChange={handleSelectChange} className="border p-1 rounded">
+      <label htmlFor="sort">הצג רק:</label>
+      <select id="sort" value={selectedValue} onChange={handleSelectChange}>
         <option value="">הכל</option>
         <option value="income">הכנסות</option>
         <option value="expense">הוצאות</option>
@@ -208,7 +215,7 @@ const TransactionsPage = () => {
           {filteredTransactions.map((tx) => (
             <tr
               key={tx._id}
-              className="border-b hover:bg-gray-50 transition duration-150 text-center"
+              className="border-b hover:bg-gray-50 transition duration-150"
             >
               <td className="py-3 px-6">
                 <span
@@ -224,7 +231,7 @@ const TransactionsPage = () => {
               <td className="py-3 px-6 font-medium">{tx.sum}₪</td>
               <td className="py-3 px-6">{tx.date?.slice(0, 10)}</td>
               <td className="py-3 px-6">{tx.category || '-'}</td>
-              <td className="py-3 px-6 space-x-2">
+              <td className="py-3 px-6 text-center space-x-2">
                 <button
                   onClick={() => openEditModal(tx)}
                   className="text-blue-600 hover:text-blue-800"
@@ -250,6 +257,7 @@ const TransactionsPage = () => {
         📥 ייצוא לאקסל
       </button>
 
+      {/* פופאפ לעריכה */}
       {isModalOpen && (
         <Modal onClose={closeModal}>
           <TransactionForm
@@ -265,4 +273,3 @@ const TransactionsPage = () => {
 };
 
 export default TransactionsPage;
-
