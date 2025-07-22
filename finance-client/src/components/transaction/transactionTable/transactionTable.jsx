@@ -110,31 +110,23 @@ import {
   deleteTransaction,
 } from 'api/transactionApi';
 import TransactionForm from 'components/transaction/transactionForm';
+import Modal from 'components/transaction/Modal';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
 const exportToExcel = (transactions) => {
-  // יוצרים מערך חדש עם הנתונים הרצויים בלבד
   const filteredData = transactions.map(({ _id, type, sum, date, category }) => ({
     Type: type,
     Sum: sum,
     Date: date?.slice(0, 10),
-    Category: category || '-', // אם אין קטגוריה – מציגים קו
+    Category: category || '-',
   }));
 
-  // ממירים את המידע לגיליון
   const worksheet = XLSX.utils.json_to_sheet(filteredData);
-
-  // יוצרים חוברת עבודה ומוסיפים את הגיליון
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Transactions');
 
-  // ממירים לקובץ ומורידים
-  const excelBuffer = XLSX.write(workbook, {
-    bookType: 'xlsx',
-    type: 'array',
-  });
-
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
   const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
   saveAs(blob, 'transactions.xlsx');
 };
@@ -142,6 +134,7 @@ const exportToExcel = (transactions) => {
 const TransactionsPage = () => {
   const [transactions, setTransactions] = useState([]);
   const [editTx, setEditTx] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchTransactions = async () => {
     const res = await getAllTransactions();
@@ -159,7 +152,7 @@ const TransactionsPage = () => {
 
   const handleUpdate = async (data) => {
     await updateTransaction(editTx._id, data);
-    setEditTx(null);
+    closeModal();
     fetchTransactions();
   };
 
@@ -168,15 +161,24 @@ const TransactionsPage = () => {
     fetchTransactions();
   };
 
+  const openEditModal = (tx) => {
+    setEditTx(tx);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setEditTx(null);
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Transactions</h1>
 
+       
       <TransactionForm
-        mode={editTx ? 'edit' : 'create'}
-        initialData={editTx}
-        onSubmit={editTx ? handleUpdate : handleCreate}
-        onCancel={() => setEditTx(null)}
+        mode="create"
+        onSubmit={handleCreate}
       />
 
       <h2 className="text-lg mt-6 mb-2 font-semibold">All Transactions</h2>
@@ -198,16 +200,39 @@ const TransactionsPage = () => {
               <td>{tx.date?.slice(0, 10)}</td>
               <td>{tx.category || '-'}</td>
               <td className="space-x-2">
-                <button onClick={() => setEditTx(tx)} className="text-blue-600">Edit</button>
-                <button onClick={() => handleDelete(tx._id)} className="text-red-600">Delete</button>
+                <button
+                  onClick={() => openEditModal(tx)}
+                  className="text-blue-600"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(tx._id)}
+                  className="text-red-600"
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
       <button onClick={() => exportToExcel(transactions)}>
         📥 ייצוא לאקסל
       </button>
+
+       
+      {isModalOpen && (
+        <Modal onClose={closeModal}>
+          <TransactionForm
+            mode="edit"
+            initialData={editTx}
+            onSubmit={handleUpdate}
+            onCancel={closeModal}
+          />
+        </Modal>
+      )}
     </div>
   );
 };
