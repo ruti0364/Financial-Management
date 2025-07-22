@@ -3,20 +3,25 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 import { getAllTransactions } from 'api/transactionApi';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
 
 const TransactionChart = () => {
-  const [data, setData] = useState([]);
+  const [monthlyData, setMonthlyData] = useState([]);
+  const [yearlyData, setYearlyData] = useState([]);
   const [transactions, setTransactions] = useState([]);
-  const [from, setFrom] = useState(getDefaultFromDate());
-  const [to, setTo] = useState(getToday());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
     fetchData();
   }, []);
 
   useEffect(() => {
-    filterAndPrepareData();
-  }, [from, to, transactions]);
+    prepareCharts();
+  }, [selectedYear, transactions]);
 
   const fetchData = async () => {
     try {
@@ -27,85 +32,141 @@ const TransactionChart = () => {
     }
   };
 
- const filterAndPrepareData = () => {
-  const fromDate = new Date(from);
-  const toDate = new Date(to);
+  const prepareCharts = () => {
+    const filtered = transactions.filter(tx => {
+      const txDate = new Date(tx.date);
+      return txDate.getFullYear() === parseInt(selectedYear);
+    });
 
-  const filtered = transactions.filter(tx => {
-    const txDate = new Date(tx.date);
-    return txDate >= fromDate && txDate <= toDate;
+    // Monthly data
+    const months = Array.from({ length: 12 }, (_, i) => ({
+      name: `${String(i + 1).padStart(2, '0')}/${String(selectedYear).slice(2)}`,
+      income: 0,
+      expense: 0
+    }));
+
+    let totalIncome = 0;
+    let totalExpense = 0;
+
+    filtered.forEach(tx => {
+      const txDate = new Date(tx.date);
+      const monthIndex = txDate.getMonth();
+      const sum = Number(tx.sum);
+
+      if (tx.type === 'income') {
+        months[monthIndex].income += sum;
+        totalIncome += sum;
+      } else if (tx.type === 'expense') {
+        months[monthIndex].expense += sum;
+        totalExpense += sum;
+      }
+    });
+
+    setMonthlyData(months);
+    setYearlyData([
+      {
+        name: `סה"כ שנתי`,
+        income: totalIncome,
+        expense: totalExpense
+      }
+    ]);
+  };
+const exportToPDF = () => {
+  const doc = new jsPDF();
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.text(`דו"ח חודשי לשנת ${selectedYear}`, 14, 22);
+
+  autoTable(doc, {
+    startY: 30,
+    head: [['חודש', 'הכנסות', 'הוצאות']],
+    body: monthlyData.map(row => [
+      row.name,
+      row.income,
+      row.expense
+    ]),
+    styles: { font: 'helvetica', fontSize: 12, halign: 'right' },
+    headStyles: { fillColor: [63, 81, 181] }
   });
 
-  const incomeSum = filtered
-    .filter(tx => tx.type === 'income')
-    .reduce((acc, tx) => acc + Number(tx.sum), 0);
-
-  const expenseSum = filtered
-    .filter(tx => tx.type === 'expense')
-    .reduce((acc, tx) => acc + Number(tx.sum), 0);
-
-  setData([
-    {
-      name: 'סה"כ',
-      income: incomeSum,
-      expense: expenseSum,
-    }
-  ]);
+  doc.save(`דו"ח_חודשי_${selectedYear}.pdf`);
 };
+const exportToExcel = () => {
+  const data = [
+    ['חודש', 'הכנסות', 'הוצאות'],
+    ...monthlyData.map((row) => [
+      row.name,
+      row.income,
+      row.expense
+    ])
+  ];
 
+  const worksheet = XLSX.utils.aoa_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "סיכום חודשי");
+
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+  saveAs(blob, `דו"ח_חודשי_${selectedYear}.xlsx`);
+};
 
   return (
     <div>
-      <h3>הכנסות והוצאות לפי טווח תאריכים</h3>
+      <div>
+        <h3>הכנסות והוצאות לפי חודשים ({selectedYear})</h3>
 
-      <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem' }}>
-        <div>
-          <label>מתאריך: </label>
-          <input
-            type="date"
-            value={from}
-            onChange={e => setFrom(e.target.value)}
-          />
+        <div style={{ marginBottom: '1rem' }}>
+          <label>בחר שנה: </label>
+          <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
+            {[2023, 2024, 2025].map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
         </div>
-        <div>
-          <label>עד תאריך: </label>
-          <input
-            type="date"
-            value={to}
-            onChange={e => setTo(e.target.value)}
-          />
+
+        {/* גרף חודשי */}
+        <div style={{ width: '100%', height: 300, marginBottom: '3rem' }}>
+          <ResponsiveContainer>
+            <BarChart data={monthlyData}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="income" fill="#4caf50" name="הכנסות" />
+              <Bar dataKey="expense" fill="#f44336" name="הוצאות" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* גרף שנתי */}
+        <h3>סיכום שנתי כולל ({selectedYear})</h3>
+        <div style={{ width: '100%', height: 300 }}>
+          <ResponsiveContainer>
+            <BarChart data={yearlyData}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="income" fill="#4caf50" name="הכנסות" />
+              <Bar dataKey="expense" fill="#f44336" name="הוצאות" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
-
-      <div style={{ width: '100%', height: 300 }}>
-        <ResponsiveContainer>
-          <BarChart data={data}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="income" fill="#4caf50" name="הכנסות" />
-            <Bar dataKey="expense" fill="#f44336" name="הוצאות" />
-          </BarChart>
-        </ResponsiveContainer>
-
+      <div style={{ marginBottom: '1rem' }}>
+        <button onClick={exportToExcel} style={{ marginRight: '1rem' }}>
+          ייצוא ל-Excel
+        </button>
+        <button onClick={exportToPDF}>
+          ייצוא ל-PDF
+        </button>
       </div>
+
     </div>
+
+
   );
 };
 
 export default TransactionChart;
-
-
-function getToday() {
-  const today = new Date();
-  return today.toISOString().split('T')[0]; // yyyy-mm-dd
-}
-
-function getDefaultFromDate() {
-  const date = new Date();
-  date.setMonth(date.getMonth() - 2);
-  return date.toISOString().split('T')[0];
-}
-// This function returns a date two months ago in the format yyyy-mm-dd
-// It is used to set the default "from" date in the date range filter.  
