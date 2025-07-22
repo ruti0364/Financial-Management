@@ -134,6 +134,15 @@ const exportToExcel = (transactions) => {
 const TransactionsPage = () => {
   const [transactions, setTransactions] = useState([]);
   const [editTx, setEditTx] = useState(null);
+  const [selectedValue, setSelectedValue] = useState('');
+
+  const handleSelectChange = (event) => {
+    setSelectedValue(event.target.value);
+  };
+
+  const filteredTransactions = transactions.filter(
+    (tx) => !selectedValue || tx.type === selectedValue
+  );
 
   const fetchTransactions = async () => {
     const res = await getAllTransactions();
@@ -170,7 +179,13 @@ const TransactionsPage = () => {
         onSubmit={editTx ? handleUpdate : handleCreate}
         onCancel={() => setEditTx(null)}
       />
-
+      <h2 className="text-lg mt-6 mb-2 font-semibold">סינון לפי סוג</h2>
+      <label htmlFor="sort">הצג רק:</label>
+      <select id="sort" value={selectedValue} onChange={handleSelectChange}>
+        <option value="">הכל</option>
+        <option value="income">הכנסות</option>
+        <option value="expense">הוצאות</option>
+      </select>
       <h2 className="text-lg mt-6 mb-2 font-semibold">All Transactions</h2>
       <table className="w-full border mt-2">
         <thead>
@@ -183,7 +198,7 @@ const TransactionsPage = () => {
           </tr>
         </thead>
         <tbody>
-          {transactions.map((tx) => (
+          {filteredTransactions.map((tx) => (
             <tr key={tx._id} className="text-center">
               <td>{tx.type}</td>
               <td>{tx.sum}</td>
@@ -197,10 +212,14 @@ const TransactionsPage = () => {
           ))}
         </tbody>
       </table>
-      <button onClick={() => exportToExcel(transactions)}>
-        📥 ייצוא לאקסל
-      </button>
-    </div>
+      {/* <button onClick={() => exportToExcel(transactions)}> */}
+      <button
+        onClick={() => exportToExcel(filteredTransactions)}
+        className="mt-4 bg-green-500 text-white px-4 py-2 rounded"
+      >
+      📥 ייצוא לאקסל
+    </button>
+    </div >
   );
 };
 
