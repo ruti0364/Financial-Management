@@ -9,6 +9,7 @@ import TransactionTable from './components/transaction/transactionTable/transact
 import SavingsGoals from './components/goals/SavingsGoals';
 import ExpenseCategoryChart from './components/transaction/TransactionCharts/ExpenseCategoryChart';
 import TransactionChart from './components/transaction/TransactionCharts/TransactionChart';
+import BalanceSummary from './components/transaction/BalanceSummary/BalanceSummary'; 
 function App() {
 
 
@@ -28,7 +29,7 @@ function App() {
   const handleTransactionAdded = () => {
     fetchTransactions();
   };
-  const handleAdded = () => setRefresh(prev => !prev);
+   const handleAdded = () => setRefresh(prev => !prev);
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Personal Finance Tracker</h1>
@@ -44,14 +45,15 @@ function App() {
 
 
       <div>
-        {/* <button onClick={() => setType('income')}>Income</button>
+          {/* <button onClick={() => setType('income')}>Income</button>
       <button onClick={() => setType('expense')}>Expense</button> */}
 
-        {/* <TransactionForm type={type} onTransactionAdded={handleAdded} /> */}
-        <TransactionTable key={refresh} />
-        <ExpenseCategoryChart />
-        <TransactionChart />
-      </div>
+          {/* <TransactionForm type={type} onTransactionAdded={handleAdded} /> */}
+          <TransactionTable key={refresh} />
+          <ExpenseCategoryChart />
+          <TransactionChart />
+        <BalanceSummary/>
+        </div>
       <SavingsGoals></SavingsGoals>
     </div>
   );
