@@ -1,1 +1,1 @@
-module.exports = ['food', 'transport', 'bills', 'shopping'];
+module.exports = ['food', 'transport', 'bills', 'shopping', 'others', 'home design'];

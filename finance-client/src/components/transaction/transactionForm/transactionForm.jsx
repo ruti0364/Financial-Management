@@ -97,6 +97,7 @@
 // export default TransactionForm;
 import React, { useEffect, useState } from 'react';
 import { getExpenseCategories } from 'api/transactionApi';
+import AutoSavingOption from "components/autoSavingOption/AutoSavingOption";
 import './transactionForm.css';
 
 
@@ -104,6 +105,7 @@ const TransactionForm = ({ mode = 'create', initialData = null, onSubmit, onCanc
   const isEdit = mode === 'edit';
   const [form, setForm] = useState({ sum: '', date: '', type: 'income', category: '' });
   const [categories, setCategories] = useState([]);
+  const [autoSaving, setAutoSaving] = useState();
 
   useEffect(() => {
     if (form.type === 'expense') {
@@ -135,60 +137,66 @@ const TransactionForm = ({ mode = 'create', initialData = null, onSubmit, onCanc
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow-md w-full max-w-md">
-      <h2 className="text-lg font-semibold mb-4">{isEdit ? 'Edit Transaction' : 'Add Transaction'}</h2>
-      <div className="type-tabs">
-        <label className={`tab ${form.type === 'income' ? 'active' : ''}`}>
-          <input
-            type="radio"
-            name="type"
-            value="income"
-            checked={form.type === 'income'}
-            onChange={handleChange}
-          />
-          הכנסה
-        </label>
+    <div>
+      <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow-md w-full max-w-md">
+        <h2 className="text-lg font-semibold mb-4">{isEdit ? 'Edit Transaction' : 'Add Transaction'}</h2>
+        <div className="type-tabs">
+          <label className={`tab ${form.type === 'income' ? 'active' : ''}`}>
+            <input
+              type="radio"
+              name="type"
+              value="income"
+              checked={form.type === 'income'}
+              onChange={handleChange}
+            />
+            הכנסה
+          </label>
+          <label className={`tab ${form.type === 'expense' ? 'active' : ''}`}>
+            <input
+              type="radio"
+              name="type"
+              value="expense"
+              checked={form.type === 'expense'}
+              onChange={handleChange}
+            />
+            הוצאה
+          </label>
+        </div>
+        <label className="block mb-1">Sum:</label>
+        <input type="number" name="sum" value={form.sum} onChange={handleChange} className="w-full border mb-3 px-2 py-1 rounded" required />
 
-        <label className={`tab ${form.type === 'expense' ? 'active' : ''}`}>
-          <input
-            type="radio"
-            name="type"
-            value="expense"
-            checked={form.type === 'expense'}
-            onChange={handleChange}
-          />
-          הוצאה
-        </label>
-      </div>
-      <label className="block mb-1">Sum:</label>
-      <input type="number" name="sum" value={form.sum} onChange={handleChange} className="w-full border mb-3 px-2 py-1 rounded" required />
+        <label className="block mb-1">Date:</label>
+        <input type="date" name="date" value={form.date} onChange={handleChange} className="w-full border mb-3 px-2 py-1 rounded" required />
 
-      <label className="block mb-1">Date:</label>
-      <input type="date" name="date" value={form.date} onChange={handleChange} className="w-full border mb-3 px-2 py-1 rounded" required />
-
-      {/* <label className="block mb-1">Type:</label> */}
-      {/* <select name="type" value={form.type} onChange={handleChange} className="w-full border mb-3 px-2 py-1 rounded">
+        {/* <label className="block mb-1">Type:</label> */}
+        {/* <select name="type" value={form.type} onChange={handleChange} className="w-full border mb-3 px-2 py-1 rounded">
         <option value="income">Income</option>
         <option value="expense">Expense</option>
       </select> */}
 
-      {form.type === 'expense' && (
-        <>
-          <label className="block mb-1">Category:</label>
-          <select name="category" value={form.category} onChange={handleChange} className="w-full border mb-3 px-2 py-1 rounded" required>
-            <option value="">Select Category</option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-        </>
-      )}
+        {form.type === 'expense' && (
+          <>
+            <label className="block mb-1">Category:</label>
+            <select name="category" value={form.category} onChange={handleChange} className="w-full border mb-3 px-2 py-1 rounded" required>
+              <option value="">Select Category</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </>
+        )}
+        <AutoSavingOption
+          label="Add auto saving to this goal"
+          onChange={setAutoSaving}
+        />
+        <div className="flex justify-end gap-2 mt-4">
+          {onCancel && <button type="button" onClick={onCancel} className="px-4 py-1 border rounded">Cancel</button>}
+          <button type="submit" className="bg-blue-600 text-white px-4 py-1 rounded">{isEdit ? 'Update' : 'Create'}</button>
+        </div>
+      </form>
 
-      <div className="flex justify-end gap-2 mt-4">
-        {onCancel && <button type="button" onClick={onCancel} className="px-4 py-1 border rounded">Cancel</button>}
-        <button type="submit" className="bg-blue-600 text-white px-4 py-1 rounded">{isEdit ? 'Update' : 'Create'}</button>
-      </div>
-    </form>
+    </div>
+
   );
 };
 

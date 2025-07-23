@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
-require('./autoSavingCron'); 
+// require('./autoSavingCron'); 
 
 
 const userRoutes = require('./routes/userRoutes');
