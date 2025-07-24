@@ -191,14 +191,14 @@ const BalanceSummary = () => {
       <div
         className="mt-6 p-4 rounded font-bold text-center"
         style={{
-          width:'10rem',
+          width: '10rem',
           backgroundColor: isPositive ? '#e6ffed' : '#ffe6e6',
           color: isPositive ? '#006400' : '#b30000',
           border: `2px solid ${isPositive ? '#006400' : '#b30000'}`,
         }}
       >
         {isPositive ? 'יתרה חיובית: ' : 'יתרה שלילית: '}
-        {balance.toLocaleString('he-IL')} ₪
+        ₪{balance.toLocaleString('he-IL')}
       </div>
     </div>
   );
