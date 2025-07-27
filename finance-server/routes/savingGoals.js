@@ -4,13 +4,14 @@ const SavingsGoal = require('../models/SavingGoal');
 
 router.post("/", async (req, res) => {
   try {
-    const { userId, title, targetAmount, currentAmount, autoSaving } = req.body;
+    const { userId, title, targetAmount, currentAmount, autoSaving, deadline } = req.body;
     const initialAmount = (autoSaving && autoSaving.amount) ? autoSaving.amount : 0;
     const newSavingGoal = new SavingsGoal({
       userId,
       title,
       targetAmount,
       currentAmount: (currentAmount || 0) + initialAmount,
+      deadline,
       autoSaving: autoSaving || { amount: 0, frequency: 'none' }
     });
 
@@ -33,15 +34,17 @@ router.get("/", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   try {
-    const { title, targetAmount, currentAmount, autoSaving } = req.body;
+    const { title, targetAmount, currentAmount, autoSaving, deadline } = req.body;
     const updatedGoal = await SavingsGoal.findByIdAndUpdate(
       req.params.id,
-      { title, targetAmount, currentAmount, autoSaving },
+      { title, targetAmount, currentAmount, autoSaving, deadline },
       { new: true }
     );
     if (!updatedGoal) {
       return res.status(404).json({ error: "Saving goal not found" });
     }
+    console.log("updatedGoal", updatedGoal);
+
     res.status(200).json(updatedGoal);
   } catch (err) {
     res.status(400).json({ error: err.message });
