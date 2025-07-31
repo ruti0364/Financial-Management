@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
-// require('./autoSavingCron'); 
+require('./autoSaving/autoSavingCron');
 
 
 const userRoutes = require('./routes/userRoutes');
@@ -11,6 +11,8 @@ const metaRoutes = require('./routes/metaRoutes');
 const profileRoute = require('./routes/profileRoutes.js');
 
 const savingsGoalsRoutes = require('./routes/savingGoals');
+const autoSavingRegistry = require('./autoSaving/autoSavingRegistry');
+
 
 const app = express();
 app.use(cors());

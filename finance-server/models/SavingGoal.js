@@ -18,9 +18,7 @@ const savingGoalSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  // deadline: {
-  //   type: Date
-  // },
+
   autoSaving: {
     amount: {
       type: Number,
@@ -30,9 +28,18 @@ const savingGoalSchema = new mongoose.Schema({
       type: String,
       enum: ['weekly', 'monthly', 'yearly', 'none'],
       default: 'none'
+    },
+    isUnlimited: {
+      type: Boolean,
+      default: true
+    },
+    timesToRepeat: {
+      type: Number,
+      default: null
     }
   }
 
 }, { timestamps: true });
 
 module.exports = mongoose.model('SavingGoal', savingGoalSchema);
+
