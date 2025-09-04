@@ -1,9 +1,14 @@
-import axios from 'axios';
+import api from './axios';
 
-const BASE_URL = 'http://localhost:5000/api/transactions';
+const API = api.create({
+  baseURL: 'http://localhost:5000/api',
+  withCredentials: true, //  הטוקן נשמר ב־cookie
+});
 
-export const getAllTransactions = () => axios.get(BASE_URL);
-export const createTransaction = (data) => axios.post(BASE_URL, data);
-export const updateTransaction = (id, data) => axios.put(`${BASE_URL}/${id}`, data);
-export const deleteTransaction = (id) => axios.delete(`${BASE_URL}/${id}`);
-export const getExpenseCategories = () =>  axios.get('http://localhost:5000/api/meta/categories');
+export const getAllTransactions = () => API.get('/transactions');
+export const createTransaction = (data) => API.post('/transactions', data);
+export const updateTransaction = (id, data) => API.put(`/transactions/${id}`, data);
+export const deleteTransaction = (id) => API.delete(`/transactions/${id}`);
+export const getExpenseCategories = () =>  API.get('/meta/categories');
+
+
