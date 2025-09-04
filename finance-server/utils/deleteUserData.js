@@ -1,5 +1,5 @@
 const User = require('../models/User');
-const transactionmodel = require('../models/transaction.model');
+const transactionmodel = require('../models/transaction');
 const SavingGoal = require('../models/SavingGoal');
 
  
