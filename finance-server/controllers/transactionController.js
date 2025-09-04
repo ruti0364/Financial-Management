@@ -1,68 +1,54 @@
-const Transaction = require('../models/transaction.model');
+const Transaction = require("../models/Transaction");
 
-// @desc    Add a new transaction
-// @route   POST /api/transactions
-const addTransaction = async (req, res) => {
+// יצירת טרנזקציה
+exports.createTransaction = async (req, res) => {
   try {
-    const { type, sum, date, category } = req.body;
-    const transaction = new Transaction({
-      type,
-      sum,
-      date,
-      category: type === 'expense' ? category : undefined,
+    const transaction = await Transaction.create({
+      ...req.body,
+      user: req.user.id, // מגיע מה־JWT
     });
-
-    await transaction.save();
     res.status(201).json(transaction);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
 
-// @desc    Get all transactions
-// @route   GET /api/transactions
-const getTransactions = async (req, res) => {
+// שליפת כל הטרנזקציות (ממויין לפי תאריך יורד)
+exports.getTransactions = async (req, res) => {
   try {
-    const transactions = await Transaction.find().sort({ date: -1 });
+    const transactions = await Transaction.find({ user: req.user.id })
+      .sort({ date: -1 }); // מיון לפי תאריך מהחדש לישן
     res.json(transactions);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
-// @desc    Update a transaction
-// @route   PUT /api/transactions/:id 
-const updateTransaction = async (req, res) => {
-  const { id } = req.params;
-  const { type, sum, date, category  } = req.body;
 
+// עדכון טרנזקציה
+exports.updateTransaction = async (req, res) => {
   try {
-    const updated = await Transaction.findByIdAndUpdate(
-      id,
-      { type, sum, date, category: type === 'expense' ? category : '' },
+    const updated = await Transaction.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
+      req.body,
       { new: true }
     );
-
-    if (!updated) return res.status(404).json({ message: 'Transaction not found' });
+    if (!updated) return res.status(404).json({ message: "Not found" });
     res.json(updated);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
-// @desc    Delete a transaction
-// @route   DELETE /api/transactions/:id
-const deleteTransaction = async (req, res) => {
+
+// מחיקת טרנזקציה
+exports.deleteTransaction = async (req, res) => {
   try {
-    const deleted = await Transaction.findByIdAndDelete(req.params.id);
-    if (!deleted) {
-      return res.status(404).json({ message: 'Transaction not found' });
-    }
-    res.json({ message: 'Transaction deleted' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    const deleted = await Transaction.findOneAndDelete({
+      _id: req.params.id,
+      user: req.user.id,
+    });
+    if (!deleted) return res.status(404).json({ message: "Not found" });
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
-module.exports = {
- addTransaction, getTransactions ,updateTransaction, deleteTransaction
-};
-
-
