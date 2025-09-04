@@ -8,16 +8,19 @@ export default function SavingsGoalForm({ goal, onClose, onSave }) {
   const [title, setTitle] = useState(goal ? goal.title : "");
   const [targetAmount, setTargetAmount] = useState(goal ? goal.targetAmount : "");
   const [autoSaving, setAutoSaving] = useState(goal ? goal.autoSaving : null);
+  // const [deadline, setDeadline] = useState(goal && goal.deadline ? goal.deadline.slice(0, 10) : "");
 
   useEffect(() => {
     if (goal) {
       setTitle(goal.title);
       setTargetAmount(goal.targetAmount);
-      setAutoSaving(goal.autoSaving||null);
+      setAutoSaving(goal.autoSaving || null);
+      // setDeadline(goal.deadline ? goal.deadline.slice(0, 10) : "");
     } else {
       setTitle("");
       setTargetAmount("");
       setAutoSaving(null);
+      // setDeadline("");
     }
   }, [goal]);
 
@@ -34,7 +37,10 @@ export default function SavingsGoalForm({ goal, onClose, onSave }) {
       targetAmount,
       userId,
       autoSaving,
+      // deadline,
     };
+    console.log("bodyData before fetch", bodyData);
+
 
     try {
       const response = await fetch(url, {
@@ -42,6 +48,10 @@ export default function SavingsGoalForm({ goal, onClose, onSave }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bodyData),
       });
+
+
+      const data = await response.json();
+      console.log("response from server", data);
 
       if (!response.ok) throw new Error("Failed to save");
 
@@ -77,6 +87,12 @@ export default function SavingsGoalForm({ goal, onClose, onSave }) {
         min="0"
       />
       <br />
+      {/* <input
+        type="date"
+        value={deadline}
+        onChange={(e) => setDeadline(e.target.value)}
+      />
+      <br /> */}
 
       <AutoSavingOption
         label="Add auto saving to this goal"

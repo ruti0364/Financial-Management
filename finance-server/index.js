@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 const cookieParser = require('cookie-parser');
-// require('./autoSavingCron'); 
+require('./autoSaving/autoSavingCron');
 const dotenv = require('dotenv');
 
 const connectDB = require("./config/db");
@@ -13,6 +13,8 @@ const transactionRoutes = require('./routes/transactionRoutes.js');
 const metaRoutes = require('./routes/metaRoutes');
 const profileRoute = require('./routes/profileRoutes.js');
 const savingsGoalsRoutes = require('./routes/savingGoals');
+const autoSavingRegistry = require('./autoSaving/autoSavingRegistry');
+
 
 dotenv.config();
 connectDB();
