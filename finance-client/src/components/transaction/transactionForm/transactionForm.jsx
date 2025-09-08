@@ -3,7 +3,7 @@ import { getExpenseCategories } from 'api/transactionApi';
 import { useAuth } from 'context/AuthContext';
 import './transactionForm.scss';
 
-const TransactionForm = ({ mode = 'create', initialData = null, onSubmit, onCancel }) => {
+const TransactionForm = ({ mode = 'create', initialData = null,type='income', onSubmit, onCancel }) => {
   const isEdit = mode === 'edit';
   const { user } = useAuth();
   const [form, setForm] = useState({
@@ -14,6 +14,28 @@ const TransactionForm = ({ mode = 'create', initialData = null, onSubmit, onCanc
   });
   const [categories, setCategories] = useState([]);
 
+  useEffect(() => {
+    if (form.type === 'expense') {
+      getExpenseCategories()
+        .then(res => setCategories(res.data))
+        .catch(err => console.error(err));
+    }
+  }, [form.type]);
+
+  useEffect(() => {
+    setForm(prev => ({ ...prev, type }));
+  }, [type]);
+
+  useEffect(() => {
+    if (isEdit && initialData) {
+      setForm({
+        sum: initialData.sum,
+        date: initialData.date?.slice(0, 10),
+        type: initialData.type,
+        category: initialData.category || '',
+      });
+    }
+  }, [isEdit, initialData]);
   useEffect(() => {
     if (form.type === 'expense') {
       getExpenseCategories()

@@ -1,11 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from 'context/AuthContext';
-import {
-  getAllTransactions,
-  createTransaction,
-  updateTransaction,
-  deleteTransaction
-} from 'api/transactionApi';
+import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import './transactionsTable.scss';
@@ -14,7 +7,7 @@ const exportToExcel = (transactions) => {
   const filteredData = transactions.map(({ _id, type, sum, date, category }) => ({
     Type: type,
     Sum: sum,
-    Date: date?.slice(0, 10),
+    Date: date ? date.slice(0, 10) : '',
     Category: category || '-',
   }));
 
@@ -27,87 +20,59 @@ const exportToExcel = (transactions) => {
   saveAs(blob, 'transactions.xlsx');
 };
 
-const transactionsTable = () => {
-  const { user, loading } = useAuth();
-  const [transactions, setTransactions] = useState([]);
-  const [editTx, setEditTx] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedValue, setSelectedValue] = useState('');
+const TransactionsTable = ({ transactions, onDelete, onEdit }) => {
+  const [typeFilter, setTypeFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [expenseCategories, setExpenseCategories] = useState([]);
 
-  const fetchTransactions = async () => {
-    debugger
-    try {
-      const res = await getAllTransactions();
-      setTransactions(res.data);
-    } catch (err) {
-      console.error('Failed fetching transactions', err);
-    }
-  };
-
+  // עדכון רשימת הקטגוריות של ההוצאות
   useEffect(() => {
-    if (!loading && user) fetchTransactions();
-  }, [loading, user]);
-
-  const handleCreate = async (data) => {
-    await createTransaction(data);
-    fetchTransactions();
-    closeModal();
-  };
-
-  const handleUpdate = async (data) => {
-    await updateTransaction(editTx._id, data);
-    fetchTransactions();
-    closeModal();
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this transaction?')) {
-      await deleteTransaction(id);
-      fetchTransactions();
+    if (typeFilter === 'expense') {
+      const categories = Array.from(
+        new Set(transactions.filter(tx => tx.type === 'expense').map(tx => tx.category))
+      );
+      setExpenseCategories(categories);
+    } else {
+      setExpenseCategories([]);
+      setCategoryFilter('');
     }
-  };
+  }, [typeFilter, transactions]);
 
-  const openEditModal = (tx) => {
-    setEditTx(tx);
-    setIsModalOpen(true);
-  };
-
-  const openCreateModal = () => {
-    setEditTx(null);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setEditTx(null);
-    setIsModalOpen(false);
-  };
-
-  const handleSelectChange = (e) => setSelectedValue(e.target.value);
-
-  const filteredTransactions = transactions.filter(
-    (tx) => !selectedValue || tx.type === selectedValue
-  );
-
-  if (!user && !loading) return <p>נא להתחבר כדי לראות את הטרנזקציות</p>;
+  const filteredTransactions = transactions.filter(tx => {
+    if (typeFilter && tx.type !== typeFilter) return false;
+    if (typeFilter === 'expense' && categoryFilter && tx.category !== categoryFilter) return false;
+    return true;
+  });
 
   return (
-    <div className="p-4">
-      <h2 className="text-lg mt-6 mb-2 font-semibold">סינון לפי סוג</h2>
+    <div className="transactions-table-container">
+      <h2 className="title">סינון לפי סוג</h2>
       <label htmlFor="sort">הצג רק:</label>
-      <select id="sort" value={selectedValue} onChange={handleSelectChange}>
+      <select id="sort" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
         <option value="">הכל</option>
         <option value="income">הכנסות</option>
         <option value="expense">הוצאות</option>
       </select>
 
-      <button
-        onClick={openCreateModal}
-        className="ml-4 bg-blue-600 text-white px-4 py-1 rounded"
-      >
-        + טרנזקציה חדשה
-      </button>
+      {typeFilter === 'expense' && (
+        <>
+          <label htmlFor="categorySort">קטגוריה:</label>
+          <select
+            id="categorySort"
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+          >
+            <option value="">כל ההוצאות</option>
+            {expenseCategories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
 
-      <h2 className="text-lg mt-6 mb-2 font-semibold">כל הטרנזקציות</h2>
+      <h2 className="title mt-4">כל הטרנזקציות</h2>
       <table className="min-w-full table-auto border-collapse rounded-md overflow-hidden shadow-sm mt-2 bg-white">
         <thead>
           <tr className="bg-gray-100 text-gray-600 text-sm uppercase text-left">
@@ -124,7 +89,9 @@ const transactionsTable = () => {
               <td className="py-3 px-6">
                 <span
                   className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                    tx.type === 'income' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                    tx.type === 'income'
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-red-100 text-red-700'
                   }`}
                 >
                   {tx.type}
@@ -134,16 +101,10 @@ const transactionsTable = () => {
               <td className="py-3 px-6">{tx.date?.slice(0, 10)}</td>
               <td className="py-3 px-6">{tx.category || '-'}</td>
               <td className="py-3 px-6 text-center space-x-2">
-                <button
-                  onClick={() => openEditModal(tx)}
-                  className="text-blue-600 hover:text-blue-800"
-                >
+                <button onClick={() => onEdit(tx)} className="text-blue-600 hover:text-blue-800">
                   Edit
                 </button>
-                <button
-                  onClick={() => handleDelete(tx._id)}
-                  className="text-red-600 hover:text-red-800"
-                >
+                <button onClick={() => onDelete(tx._id)} className="text-red-600 hover:text-red-800">
                   Delete
                 </button>
               </td>
@@ -158,19 +119,8 @@ const transactionsTable = () => {
       >
         📥 ייצוא לאקסל
       </button>
-{/* 
-      {isModalOpen && (
-        <Modal onClose={closeModal}>
-          <TransactionForm
-            mode={editTx ? 'edit' : 'create'}
-            initialData={editTx}
-            onSubmit={editTx ? handleUpdate : handleCreate}
-            onCancel={closeModal}
-          />
-        </Modal>
-      )} */}
     </div>
   );
 };
 
-export default transactionsTable;
+export default TransactionsTable;
