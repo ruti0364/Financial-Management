@@ -108,16 +108,19 @@ const TransactionsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filterType, setFilterType] = useState('');
   const [type, setType] = useState('expense');
+
+  // --- סינון לפי סוג (הצגה בטבלה) ---
   const filteredTransactions = transactions.filter(
     (tx) => !filterType || tx.type === filterType
   );
 
+  // --- שליפת טרנזקציות מהשרת ---
   const fetchTransactions = async () => {
     try {
       const res = await getAllTransactions();
-      setTransactions(res.data);
+      setTransactions(res.data || res); // תמיכה גם אם ה־API מחזיר res.data או מערך ישירות
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching transactions:', err);
     }
   };
 
@@ -125,6 +128,7 @@ const TransactionsPage = () => {
     fetchTransactions();
   }, []);
 
+  // --- שמירה (יצירה / עדכון) ---
   const handleFormSubmit = async (data) => {
     try {
       if (editTx) {
@@ -132,70 +136,90 @@ const TransactionsPage = () => {
       } else {
         await createTransaction(data);
       }
-      await fetchTransactions(); // ריפורש אוטומטי של הטבלה והגרפים
-      closeModal();
+      await fetchTransactions();
+      setEditTx(null);
+      setIsModalOpen(false);
     } catch (err) {
-      console.error(err);
+      console.error('Error saving transaction:', err);
     }
   };
 
+  // --- מחיקה ---
   const handleDelete = async (id) => {
-    await deleteTransaction(id);
-    fetchTransactions(); // ריפורש אחרי מחיקה
-  };
-
-  const openEditModal = (tx) => {
-    setEditTx(tx);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setEditTx(null);
-    setIsModalOpen(false);
+    try {
+      await deleteTransaction(id);
+      await fetchTransactions();
+    } catch (err) {
+      console.error('Error deleting transaction:', err);
+    }
   };
 
   return (
-    <div className="p-4">
-      <button onClick={() => setIsModalOpen(true)}>Add Transaction</button>
+    <div className="p-4 transactions-page">
+      {/* כפתור לפתיחת מודל */}
+      <button
+        className="add-btn"
+        onClick={() => {
+          setEditTx(null);
+          setType('income');
+          setIsModalOpen(true);
+        }}
+      >
+        + Add Transaction
+      </button>
 
-
+      {/* טופס יצירה / עריכה */}
       {isModalOpen && (
-        <>
+        <div className="modal">
           <div className="transaction-type">
             <h2>בחר סוג טרנזקציה</h2>
-            <select value={type} onChange={e => setType(e.target.value)}>
-              <option value="expense">הוצאה</option>
+            <select value={type} onChange={(e) => setType(e.target.value)}>
               <option value="income">הכנסה</option>
+              <option value="expense">הוצאה</option>
             </select>
           </div>
+
           <TransactionForm
             type={type}
             mode={editTx ? 'edit' : 'create'}
             initialData={editTx}
-            onSubmit={handleFormSubmit} // שימוש ב־callback אחיד ליצירה/עדכון
-            onCancel={closeModal}
+            onSubmit={handleFormSubmit}
+            onCancel={() => {
+              setEditTx(null);
+              setIsModalOpen(false);
+            }}
           />
-        </>
-
+        </div>
       )}
 
+      {/* טבלה */}
       <TransactionsTable
         transactions={filteredTransactions}
-        onEdit={openEditModal}
         onDelete={handleDelete}
+        onEdit={(tx) => {
+          setEditTx(tx);
+          setType(tx.type);
+          setIsModalOpen(true);
+        }}
       />
 
+      {/* גרפים */}
       <div className="chart">
-        <TransactionChart transactions={transactions} />
+        <TransactionChart transactions={transactions} key={transactions.length} />
       </div>
       <div className="chart">
-        <ExpenseCategoryChart transactions={transactions} />
+        <ExpenseCategoryChart transactions={transactions} key={transactions.length + '-exp'} />
       </div>
+
     </div>
   );
 };
 
 export default TransactionsPage;
+
+
+
+
 
 
 

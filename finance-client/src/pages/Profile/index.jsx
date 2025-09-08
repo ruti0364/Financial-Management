@@ -2,11 +2,10 @@ import { useAuth } from 'context/AuthContext';
 import { logout } from 'api/authApi';
 
 export default function Profile() {
-  const { user, setUser } = useAuth();
+  const { logout, user } = useAuth();
 
   const handleLogout = async () => {
     await logout();
-    setUser(null);
   };
 
   if (!user) return <p>לא מחובר</p>;

@@ -72,7 +72,7 @@ import Transactions from "./pages/Transactions/TransactionsPage";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-
+import './styles/global.scss'
 export default function App() {
   return (
     <AuthProvider>
