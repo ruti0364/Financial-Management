@@ -72,6 +72,7 @@ import Transactions from "./pages/Transactions/TransactionsPage";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Goals from "pages/Goals";
 
 export default function App() {
   return (
@@ -83,6 +84,7 @@ export default function App() {
             <Route element={<PrivateRoute />}>
               <Route path="/transactions" element={<Transactions />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/goals" element={<Goals />} />
             </Route>
           </Route>
 

@@ -1,10 +1,14 @@
-const express = require('express');
-const router = express.Router();
-const SavingsGoal = require('../models/SavingGoal');
 
-router.post("/", async (req, res) => {
+const express = require("express");
+const router = express.Router();
+const SavingsGoal = require("../models/SavingGoal");
+const auth = require("../middleware/authMiddleware");
+
+// יצירת SavingGoal חדש
+router.post("/", auth, async (req, res) => {
   try {
-    const { userId, title, targetAmount, currentAmount, autoSaving } = req.body;
+    const { title, targetAmount, currentAmount, autoSaving } = req.body;
+    const userId = req.user.id; // מגיע מהטוקן
 
     const newSavingGoal = new SavingsGoal({
       userId,
@@ -13,32 +17,33 @@ router.post("/", async (req, res) => {
       currentAmount: (currentAmount || 0) + (autoSaving?.amount || 0),
       autoSaving: {
         amount: autoSaving?.amount || 0,
-        frequency: autoSaving?.frequency || 'none',
+        frequency: autoSaving?.frequency || "none",
         isUnlimited: autoSaving?.isUnlimited ?? true,
         timesToRepeat: autoSaving?.isUnlimited === false ? autoSaving?.timesToRepeat : null
       }
     });
 
-    const saved = await newSavingGoal.save();
-    res.status(201).json(saved);
+    const savedGoal = await newSavingGoal.save();
+    res.status(201).json(savedGoal);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-router.put("/:id", async (req, res) => {
+// עדכון SavingGoal קיים
+router.put("/:id", auth, async (req, res) => {
   try {
     const { title, targetAmount, currentAmount, autoSaving } = req.body;
 
-    const updatedGoal = await SavingsGoal.findByIdAndUpdate(
-      req.params.id,
+    const updatedGoal = await SavingsGoal.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user.id }, // בדיקה לפי userId
       {
         title,
         targetAmount,
         currentAmount,
         autoSaving: {
           amount: autoSaving?.amount || 0,
-          frequency: autoSaving?.frequency || 'none',
+          frequency: autoSaving?.frequency || "none",
           isUnlimited: autoSaving?.isUnlimited ?? true,
           timesToRepeat: autoSaving?.isUnlimited === false ? autoSaving?.timesToRepeat : null
         }
@@ -46,46 +51,36 @@ router.put("/:id", async (req, res) => {
       { new: true }
     );
 
-    if (!updatedGoal) {
-      return res.status(404).json({ error: "Saving goal not found" });
-    }
-
+    if (!updatedGoal) return res.status(404).json({ error: "Saving goal not found" });
     res.status(200).json(updatedGoal);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-router.delete("/:id", async (req, res) => {
+// מחיקת SavingGoal
+router.delete("/:id", auth, async (req, res) => {
   try {
-    const deletedGoal = await SavingsGoal.findByIdAndDelete(req.params.id);
-    if (!deletedGoal) {
-      return res.status(404).json({ error: "Saving goal not found" });
-    }
+    const deletedGoal = await SavingsGoal.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user.id
+    });
+
+    if (!deletedGoal) return res.status(404).json({ error: "Saving goal not found" });
     res.status(200).json({ message: "Saving goal deleted successfully" });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-router.get("/getall", async (req, res) => {
+// קבלת כל ה-SavingGoals של המשתמש
+router.get("/", auth, async (req, res) => {
   try {
-    const allGoals = await SavingsGoal.find();
+    const allGoals = await SavingsGoal.find({ userId: req.user.id });
     res.status(200).json(allGoals);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-router.get("/", async (req, res) => {
-  try {
-    const { userId } = req.query;
-    const query = userId ? { userId } : {};
-    const allGoals = await SavingsGoal.find(query);
-    res.status(200).json(allGoals);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 
 module.exports = router;
