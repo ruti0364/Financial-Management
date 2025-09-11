@@ -50,6 +50,13 @@ body {
     box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
 }
 
+h1 {
+    text-align: center;
+    font-weight: 700;
+    margin-top: 3rem;
+    margin-bottom: 0;
+}
+
 .brand {
     display: inline-flex;
     align-items: center;
@@ -178,6 +185,26 @@ body {
     border-radius: 18px;
     box-shadow: 0 12px 30px rgba(0, 0, 0, .25);
     overflow: hidden;
+
+    h2 {
+        font-weight: 400;
+        color:var(--muted)
+    }
+
+    .link {
+        color: var(--text);
+    }
+
+    .btn {
+        margin-top: 15px;
+        margin-bottom: 15px;
+        width: 40%
+    }
+
+    .logo {
+        width: 16px;
+        height: 16px;
+    }
 }
 
 .card-header {
@@ -243,31 +270,75 @@ body {
     padding: 28px 0 8px;
 }
 
-// .kpi-card {
-//   background-color: #111827;
-//   color: #f3f4f6;
-//   padding: 1rem;
-//   border-radius: 12px;
-//   display: flex;
-//   align-items: center;
-//   gap: 1rem;
-// }
+.form-container {
+    width: 30%;
+    margin: 50px auto;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+}
 
-// .chart-card {
-//   background-color: #1f2937;
-//   padding: 1rem;
-//   border-radius: 12px;
-//   margin-bottom: 1rem;
-// }
-// .btn-primary:hover {
-//   background-color: #1e40af;
-// }
-// .btn-outline:hover {
-//   background-color: #374151;
-// }
-// .footer {
-//   border-top: 1px solid #374151;
-//   padding: 1rem 0;
-//   text-align: center;
-//   color: #9ca3af;
-// }
+.input-wrapper {
+    margin-bottom: 15px;
+    text-align: right;
+    direction: rtl;
+}
+
+.input-wrapper label {
+    display: block;
+    margin-bottom: 4px;
+    color: white;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid white;
+    border-radius: 6px;
+    background: transparent;
+    color: white;
+    text-align: right;
+    direction: rtl;
+    font-size: 16px;
+    outline: none;
+}
+
+.input-wrapper input::placeholder {
+    color: white;
+    opacity: 0.7;
+}
+
+.input-wrapper input.error {
+    border-color: #ff4d4d;
+}
+
+.error-message {
+    display: block;
+    color: #ff4d4d;
+    font-size: 14px;
+    margin-top: 4px;
+    text-align: right;
+}
+
+.server-message {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.server-message.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.server-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.form-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

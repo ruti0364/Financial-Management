@@ -30,7 +30,7 @@ export default function HomePage() {
   );
 
   return (
-    <div className="">
+    <div>
       {/* HERO */}
       <section className="hero">
         <motion.h1
@@ -42,8 +42,8 @@ export default function HomePage() {
         </motion.h1>
         <p className="hero-sub">עקוב אחרי הכנסות, הוצאות וחסכונות בלוח מחוונים נוח.</p>
         <div className="hero-cta">
-          <button className="btn btn-primary">התחילי עכשיו</button>
-          <button className="btn btn-ghost">כבר רשומה? התחברי</button>
+          <Link className="btn btn-primary" to="/register">התחילי עכשיו</Link>
+          <Link className="btn btn-ghost"  to="/login">כבר רשומה? התחברי</Link>
         </div>
       </section>
 
@@ -112,7 +112,7 @@ export default function HomePage() {
 
       {/* FOOTER */}
       <footer className="footer">
-        <p>© {new Date().getFullYear()} FinTrack — נבנה באהבה ל-React</p>
+        <p>© {new Date().getFullYear()} Ruth Raful&Lea Seller</p>
       </footer>
     </div>
   );
@@ -128,21 +128,5 @@ function KpiCard({ title, value, caption, icon }) {
         <div className="kpi-caption">{caption}</div>
       </div>
     </motion.div>
-  );
-}
-
-function Logo() {
-  return (
-    <svg className="logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-      <defs>
-        <linearGradient id="g" x1="0" x2="1" y1="1" y2="0">
-          <stop offset="0%" stopColor="#2dd4bf" />
-          <stop offset="100%" stopColor="#60a5fa" />
-        </linearGradient>
-      </defs>
-      <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#g)" />
-      <path d="M16 40 L26 28 L34 36 L48 20" stroke="#fff" strokeWidth="5" fill="none" strokeLinecap="round" />
-      <circle cx="48" cy="20" r="3" fill="#fff" />
-    </svg>
   );
 }
