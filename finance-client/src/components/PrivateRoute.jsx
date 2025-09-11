@@ -5,7 +5,7 @@ const PrivateRoute = () => {
   const { user, loading } = useAuth();
 
   if (loading) return <p>טוען...</p>;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/" replace />;
 
   return <Outlet />; // 🔑 צריך Outlet כדי להציג את ה־children
 };
