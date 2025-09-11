@@ -11,7 +11,7 @@ const authRoutes = require('./routes/authRoutes.js');
 // const userRoutes = require('./routes/userRoutes');
 const transactionRoutes = require('./routes/transactionRoutes.js');
 const metaRoutes = require('./routes/metaRoutes');
-const profileRoute = require('./routes/profileRoutes.js');
+const profileRoutes = require('./routes/profileRoutes');
 const savingsGoalsRoutes = require('./routes/savingGoals');
 const autoSavingRegistry = require('./autoSaving/autoSavingRegistry');
 
@@ -32,7 +32,7 @@ app.use(cookieParser());
 
 
 app.use('/api/auth', authRoutes);
-app.use('/api/profile', profileRoute);
+app.use('/api/profile', profileRoutes);
 app.use('/api/transactions', transactionRoutes);
 
 // app.use('/api/income', incomeRoutes);

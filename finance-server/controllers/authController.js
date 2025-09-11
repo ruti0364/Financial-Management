@@ -93,3 +93,74 @@ exports.getMe = async (req, res) => {
     res.status(401).json({ message: 'Invalid token' });
   }
 };
+// const User = require('../models/User');
+// const bcrypt = require('bcrypt');
+// const jwt = require('jsonwebtoken');
+
+// // יצירת טוקן JWT
+// const createToken = (id) => {
+//   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '3d' });
+// };
+
+// // REGISTER
+// exports.register = async (req, res) => {
+//   try {
+//     const { firstName, lastName, email, password } = req.body;
+//     if (!firstName || !lastName || !email || !password)
+//       return res.status(400).json({ message: 'All fields are required' });
+
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser) return res.status(409).json({ message: 'Email already registered' });
+
+//     const hashedPassword = await bcrypt.hash(password, 10);
+//     const user = new User({ firstName, lastName, email, password: hashedPassword });
+//     await user.save();
+
+//     const token = createToken(user._id);
+//     res.cookie('token', token, {
+//       httpOnly: true,
+//       sameSite: 'Lax',
+//       secure: process.env.NODE_ENV === 'production',
+//     });
+
+//     res.status(201).json({
+//       message: 'User registered successfully',
+//       user: { id: user._id, firstName, lastName, email },
+//     });
+//   } catch (err) {
+//     console.error('Register error:', err);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// };
+
+// // LOGIN
+// exports.login = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+//     if (!email || !password) return res.status(400).json({ message: 'Email and password required' });
+
+//     const user = await User.findOne({ email });
+//     if (!user) return res.status(401).json({ message: 'Invalid credentials' });
+
+//     const isMatch = await bcrypt.compare(password.trim(), user.password);
+//     if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
+
+//     const token = createToken(user._id);
+//     res.cookie('token', token, {
+//       httpOnly: true,
+//       sameSite: 'Lax',
+//       secure: process.env.NODE_ENV === 'production',
+//     });
+
+//     res.json({ message: 'Login successful', user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email } });
+//   } catch (err) {
+//     console.error('Login error:', err);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// };
+
+// // LOGOUT
+// exports.logout = (req, res) => {
+//   res.clearCookie('token');
+//   res.json({ message: 'Logged out successfully' });
+// };

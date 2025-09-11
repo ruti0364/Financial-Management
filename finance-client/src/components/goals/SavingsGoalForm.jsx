@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import AutoSavingOption from "../autoSavingOption/AutoSavingOption";
 import { createGoal, updateGoal } from "api/goalApi";
+import "./SavingsGoalForm.scss";
 
 export default function SavingsGoalForm({ goal, onClose, onSave }) {
   const [title, setTitle] = useState(goal ? goal.title : "");
@@ -26,25 +27,29 @@ export default function SavingsGoalForm({ goal, onClose, onSave }) {
     if (
       autoSaving?.enabled &&
       (!autoSaving.amount ||
-       !autoSaving.frequency ||
-       (autoSaving.isUnlimited === false && !autoSaving.timesToRepeat))
+        !autoSaving.frequency ||
+        (autoSaving.isUnlimited === false && !autoSaving.timesToRepeat))
     ) {
-      alert("Please fill in both amount and frequency for auto saving.");
+      alert("אנא מלאי סכום ותדירות להוספה אוטומטית");
       return;
     }
 
     const validatedAutoSaving = autoSaving?.enabled
       ? {
-          amount: Number(autoSaving.amount),
-          frequency: autoSaving.frequency,
-          isUnlimited: autoSaving.isUnlimited ?? true,
-          timesToRepeat: autoSaving.isUnlimited ? null : Number(autoSaving.timesToRepeat)
-        }
+        amount: Number(autoSaving.amount),
+        frequency: autoSaving.frequency,
+        isUnlimited: autoSaving.isUnlimited ?? true,
+        timesToRepeat: autoSaving.isUnlimited ? null : Number(autoSaving.timesToRepeat),
+      }
       : null;
 
     try {
       if (goal) {
-        await updateGoal(goal._id, { title, targetAmount, autoSaving: validatedAutoSaving });
+        await updateGoal(goal._id, {
+          title,
+          targetAmount,
+          autoSaving: validatedAutoSaving,
+        });
       } else {
         await createGoal({ title, targetAmount, autoSaving: validatedAutoSaving });
       }
@@ -52,25 +57,51 @@ export default function SavingsGoalForm({ goal, onClose, onSave }) {
       onSave();
       onClose();
     } catch (err) {
-      alert("Error saving goal");
+      alert("שגיאה בשמירת יעד");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ border: "1px solid #ccc", padding: "10px", marginTop: "20px" }}>
-      <h3>{goal ? "Edit a saving goal" : "Add a new saving goal"}</h3>
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <h3>{goal ? " עריכת יעד חיסכון" : " הוספת יעד חיסכון חדש"}</h3>
 
-      <input type="text" placeholder="Goal name" value={title} onChange={e => setTitle(e.target.value)} required />
-      <br />
-      <input type="number" placeholder="Goal amount" value={targetAmount} onChange={e => setTargetAmount(e.target.value)} required min="0" />
-      <br />
-      <AutoSavingOption label="Add auto saving to this goal" onChange={setAutoSaving} initialValue={goal?.autoSaving} />
-      <br />
-      <button type="submit" style={{ marginRight: "10px" }}>Save</button>
-      <button type="button" onClick={onClose}>Cancel</button>
-    </form>
+        <form onSubmit={handleSubmit} className="goal-form">
+          <label>שם היעד</label>
+          <input
+            type="text"
+            placeholder="לדוגמה: חופשה / רכב חדש"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+
+          <label>סכום יעד</label>
+          <input
+            type="number"
+            placeholder="לדוגמה: 5000"
+            value={targetAmount}
+            onChange={(e) => setTargetAmount(e.target.value)}
+            required
+            min="0"
+          />
+
+          <AutoSavingOption
+            label="הוספה אוטומטית ליעד"
+            onChange={setAutoSaving}
+            initialValue={goal?.autoSaving}
+          />
+
+          <div className="form-actions">
+            <button type="submit" className="btn btn-primary">
+              💾 שמירה
+            </button>
+            <button type="button" className="btn btn-ghost" onClick={onClose}>
+              ❌ ביטול
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
-
-
-

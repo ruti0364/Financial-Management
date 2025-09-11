@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import SavingsGoalForm from "./SavingsGoalForm";
 import { getAllGoals, deleteGoal } from "api/goalApi";
-import GoalPieChart from "components/charts/GoalPieChart";
+import GoalProgressBar from "components/GoalProgressBar/GoalProgressBar";
 
 export default function SavingsGoals() {
   const [goals, setGoals] = useState([]);
@@ -27,13 +27,13 @@ export default function SavingsGoals() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this goal?")) return;
+    if (!window.confirm("בטוח שברצונך למחוק את היעד?")) return;
 
     try {
       await deleteGoal(id);
       fetchGoals();
     } catch (err) {
-      alert("Error deleting goal");
+      alert("שגיאה במחיקת היעד");
     }
   };
 
@@ -53,50 +53,97 @@ export default function SavingsGoals() {
   };
 
   return (
-    <div style={{ maxWidth: "800px", margin: "auto" }}>
-      <h2>ניהול יעדי חיסכון</h2>
+    <div className="app-root">
+      <div className="hero">
+        <h1>ניהול יעדי חיסכון</h1>
+        <p className="hero-sub">
+          כאן תוכלי לעקוב, לערוך ולנהל את היעדים האישיים שלך בצורה מסודרת ונוחה.
+        </p>
+        <div className="hero-cta">
+          <button className="btn btn-primary" onClick={handleAddNew}>
+            ➕ הוסף יעד חדש
+          </button>
+        </div>
+      </div>
 
       {loading && <p>טוען יעדים...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <button onClick={handleAddNew}>הוסף יעד חדש</button>
-
-      <table style={{ direction: "rtl", width: "100%", borderCollapse: "collapse", marginTop: "20px" }}>
-        <thead>
-          <tr>
-            <th>שם המטרה</th>
-            <th>יעד (ש"ח)</th>
-            <th>הוספה אוטומטית</th>
-            <th>נצבר (ש"ח)</th>
-            <th>אחוז התקדמות</th>
-            <th>פעולות</th>
-          </tr>
-        </thead>
-        <tbody>
-          {goals.map((goal) => (
-            <tr key={goal._id} style={{ borderBottom: "1px solid #ccc" }}>
-              <td>{goal.title}</td>
-              <td>{goal.targetAmount}</td>
-              <td>{goal.autoSaving && goal.autoSaving.frequency !== "none"
-                ? goal.autoSaving.frequency
-                : "❌"}</td>
-              <td>{goal.currentAmount}</td>
-              <td><GoalPieChart progress={calculateProgress(goal)} /></td>
-              <td>
-                <button onClick={() => handleEdit(goal)} style={{ marginRight: "10px" }}>ערוך</button>
-                <button onClick={() => handleDelete(goal._id)}>מחק</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="card">
+        <div className="card-header">
+          <h3>הרשימה שלך</h3>
+        </div>
+        <div className="card-body" style={{ overflowX: "auto" }}>
+          <table className="savings-table"
+            style={{
+              direction: "rtl",
+              width: "100%",
+              borderCollapse: "collapse",
+              textAlign: "center",
+            }}
+          >
+            <thead>
+              <tr style={{ background: "rgba(255,255,255,.05)" }}>
+                <th>שם המטרה</th>
+                <th>יעד (ש"ח)</th>
+                <th>הוספה אוטומטית</th>
+                <th>נצבר (ש"ח)</th>
+                <th>התקדמות</th>
+                <th>פעולות</th>
+              </tr>
+            </thead>
+            <tbody>
+              {goals.map((goal) => (
+                <tr
+                  key={goal._id}
+                  style={{
+                    borderBottom: "1px solid rgba(255,255,255,.08)",
+                  }}
+                >
+                  <td>{goal.title}</td>
+                  <td>{goal.targetAmount}</td>
+                  <td>
+                    {goal.autoSaving && goal.autoSaving.frequency !== "none"
+                      ? goal.autoSaving.frequency
+                      : "❌"}
+                  </td>
+                  <td>{goal.currentAmount}</td>
+                  <td>
+                    <GoalProgressBar progress={calculateProgress(goal)} />
+                  </td>
+                  <td>
+                    <button
+                      className="btn btn-ghost"
+                      onClick={() => handleEdit(goal)}
+                      style={{ marginLeft: "6px" }}
+                    >
+                      ✏️ ערוך
+                    </button>
+                    <button
+                      className="btn"
+                      onClick={() => handleDelete(goal._id)}
+                    >
+                      🗑️ מחק
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {showForm && (
-        <SavingsGoalForm goal={selectedGoal} onClose={() => setShowForm(false)} onSave={fetchGoals} />
+        <SavingsGoalForm
+          goal={selectedGoal}
+          onClose={() => setShowForm(false)}
+          onSave={fetchGoals}
+        />
       )}
     </div>
   );
 }
+
 
 
 

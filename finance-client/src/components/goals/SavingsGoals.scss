@@ -1,0 +1,47 @@
+/* SavingsGoals Table Styles */
+.savings-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  direction: rtl;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* Header */
+.savings-table thead {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.savings-table th {
+  padding: 12px;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 14px;
+  letter-spacing: 0.3px;
+}
+
+/* Rows */
+.savings-table td {
+  padding: 10px;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Zebra effect */
+.savings-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Hover effect */
+.savings-table tbody tr:hover {
+  background: rgba(76, 196, 255, 0.08);
+  transition: background 0.2s ease;
+}
+
+/* Actions column */
+.savings-table td:last-child {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}

@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const {
-  getProfile,
-  updateProfile,
-  deleteProfile
-} = require('../controllers/profileController');
+const authMiddleware = require('../middleware/authMiddleware');
+const profileController = require('../controllers/profileController');
 
-router.get('/:id', getProfile);
-router.put('/:id', updateProfile);
-router.delete('/:id', deleteProfile);
+// קבלת המשתמש המחובר
+router.get('/me', authMiddleware, profileController.getMe);
+
+// עדכון פרופיל
+router.put('/update', authMiddleware, profileController.updateProfile);
 
 module.exports = router;
+

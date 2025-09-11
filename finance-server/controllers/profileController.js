@@ -1,66 +1,72 @@
+// const User = require('../models/User');
+
+// // מחזיר את פרטי המשתמש המחובר
+// exports.getMe = async (req, res) => {
+//   try {
+//     if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+
+//     const user = await User.findById(req.user.id).select('-password');
+//     if (!user) return res.status(404).json({ message: 'User not found' });
+
+//     res.json(user);
+//   } catch (err) {
+//     console.error('Error in getMe:', err.message);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// };
+
+// // עדכון פרטי המשתמש
+// exports.updateProfile = async (req, res) => {
+//   try {
+//     const { firstName, lastName, email } = req.body;
+//     const updates = { firstName, lastName, email };
+
+//     const user = await User.findByIdAndUpdate(req.user.id, { $set: updates }, { new: true }).select('-password');
+//     if (!user) return res.status(404).json({ message: 'User not found' });
+
+//     res.json(user);
+//   } catch (err) {
+//     console.error('Error in updateProfile:', err.message);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// };
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
-const deleteUserData = require('../utils/deleteUserData');
 
-const getProfile = async (req, res) => {
+// קבלת המשתמש המחובר
+exports.getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('username email');
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
     res.json(user);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('GetMe error:', err);
+    res.status(500).json({ message: 'Server Error' });
   }
 };
 
-const updateProfile = async (req, res) => {
-  const { username, email, password } = req.body;
-
-  if (!username || !email) {
-    return res.status(400).json({ error: 'Username and email are required' });
-  }
-
+// עדכון פרופיל כולל סיסמה
+exports.updateProfile = async (req, res) => {
   try {
-    const updateFields = { username, email };
+    const { firstName, lastName, email, oldPassword, password } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    if (password && password.length >= 6) {
-      const salt = await bcrypt.genSalt(10);
-      updateFields.password = await bcrypt.hash(password, salt);
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
+    if (email) user.email = email;
+
+    if (oldPassword && password) {
+      const isMatch = await bcrypt.compare(oldPassword.trim(), user.password);
+      if (!isMatch) return res.status(400).json({ message: 'Old password is incorrect' });
+
+      user.password = await bcrypt.hash(password, 10);
     }
 
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      updateFields,
-      { new: true, runValidators: true }
-    ).select('username email');
-
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    res.json({ message: 'Profile updated successfully', user });
+    await user.save();
+    res.json({ id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to update profile' });
+    console.error('UpdateProfile error:', err);
+    res.status(500).json({ message: 'Server Error' });
   }
-};
-
-const deleteProfile = async (req, res) => {
-  try {
-    const userId = req.params.id;
-
-    await deleteUserData(userId);
-    await User.findByIdAndDelete(userId);
-
-    res.json({ message: 'User account deleted successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to delete account' });
-  }
-};
-
-module.exports = {
-  getProfile,
-  updateProfile,
-  deleteProfile
 };
