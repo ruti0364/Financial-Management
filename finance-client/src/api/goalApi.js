@@ -11,4 +11,5 @@ export const getAllGoals = () => API.get('/goals');
 export const createGoal = (data) => API.post('/goals', data);
 export const updateGoal = (id, data) => API.put(`/goals/${id}`, data);
 export const deleteGoal = (id) => API.delete(`/goals/${id}`);
+export const addAmountToGoal = (id, amount) => API.post(`/goals/${id}/add-amount`, { amount });
 
