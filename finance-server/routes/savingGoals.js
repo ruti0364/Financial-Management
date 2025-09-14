@@ -29,6 +29,27 @@ router.post("/", auth, async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 });
+// הוספת סכום חד-פעמי ליעד
+router.post("/:id/add-amount", auth, async (req, res) => {
+  try {
+    const { amount } = req.body;
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: "סכום לא חוקי" });
+    }
+
+    const goal = await SavingsGoal.findOne({ _id: req.params.id, userId: req.user.id });
+    if (!goal) return res.status(404).json({ error: "Saving goal not found" });
+
+    goal.currentAmount += amount;
+    await goal.save();
+
+    res.status(200).json(goal);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 
 // עדכון SavingGoal קיים
 router.put("/:id", auth, async (req, res) => {
