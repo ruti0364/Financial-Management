@@ -30,7 +30,7 @@ export default function SavingsGoalForm({ goal, onClose, onSave }) {
         !autoSaving.frequency ||
         (autoSaving.isUnlimited === false && !autoSaving.timesToRepeat))
     ) {
-      alert("אנא מלאי סכום ותדירות להוספה אוטומטית");
+      alert("יש למלא סכום ותדירות להוספה אוטומטית");
       return;
     }
 

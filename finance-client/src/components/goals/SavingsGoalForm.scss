@@ -21,7 +21,22 @@
   max-width: 95%;
   box-shadow: 0 12px 30px rgba(0, 0, 0, .35);
   animation: fadeIn 0.25s ease-in-out;
+  //רספונסיבי
+  @media (max-width: 480px) {
+    width: 95%;
+    padding: 16px;
+  }
 }
+
+
+@media (max-width: 500px) {
+  .modal-content {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+  }
+}
+
 
 .modal-content h3 {
   margin-top: 0;
@@ -62,6 +77,11 @@
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
+  //רספונסיבי
+   @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 10px;
+  }
 }
 
 @keyframes fadeIn {
