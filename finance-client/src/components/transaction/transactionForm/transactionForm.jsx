@@ -75,18 +75,18 @@ const TransactionForm = ({ mode = 'create', initialData = null,type='income', on
   return (
     <form onSubmit={handleSubmit} className="transaction-form">
       <h2>{isEdit ? 'Edit Transaction' : 'Add Transaction'}</h2>
-      <div>
+      <div className="form-group">
         <label>Sum:</label>
         <input type="number" name="sum" value={form.sum} onChange={handleChange} required />
       </div>
 
-      <div>
+       <div className="form-group">
         <label>Date:</label>
         <input type="date" name="date" value={form.date} onChange={handleChange} required />
       </div>
 
       {form.type === 'expense' && (
-        <div>
+         <div className="form-group">
           <label>Category:</label>
           <select name="category" value={form.category} onChange={handleChange} required>
             <option value="">Select Category</option>
