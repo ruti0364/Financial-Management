@@ -79,6 +79,7 @@ const TransactionsPage = () => {
 
   return (
     <div className="p-4 transactions-page">
+        <h1>לוח המחוונים שלי</h1>
       {/* כפתור לפתיחת מודל */}
       <button
         className="add-btn"
