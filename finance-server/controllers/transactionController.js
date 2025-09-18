@@ -1,4 +1,5 @@
 const Transaction = require("../models/Transaction");
+const categories = require('../constants/expenseCategories'); // הנתיב לקובץ categories.js
 
 // יצירת טרנזקציה
 exports.createTransaction = async (req, res) => {
@@ -14,15 +15,35 @@ exports.createTransaction = async (req, res) => {
 };
 
 // שליפת כל הטרנזקציות (ממויין לפי תאריך יורד)
+// exports.getTransactions = async (req, res) => {
+//   try {
+//     const transactions = await Transaction.find({ user: req.user.id })
+//       .sort({ date: -1 }); // מיון לפי תאריך מהחדש לישן
+//     res.json(transactions);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };
+
 exports.getTransactions = async (req, res) => {
   try {
     const transactions = await Transaction.find({ user: req.user.id })
-      .sort({ date: -1 }); // מיון לפי תאריך מהחדש לישן
-    res.json(transactions);
+      .sort({ date: -1 });
+
+    const transactionsWithLabel = transactions.map(tx => {
+      if (tx.type === 'expense') {
+        const categoryLabel = categories.find(c => c.value === tx.category)?.label || '-';
+        return { ...tx.toObject(), categoryLabel };
+      }
+      return { ...tx.toObject(), categoryLabel: '-' };
+    });
+
+    res.json(transactionsWithLabel);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // עדכון טרנזקציה
 exports.updateTransaction = async (req, res) => {
