@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const expenseCategories = require('../constants/expenseCategories');
+const expenseCategories = require('../constants/expenseCategoriesStrings');
 
 const transactionSchema = new mongoose.Schema({
    user: {

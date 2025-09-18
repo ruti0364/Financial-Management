@@ -156,4 +156,3 @@ function formatCurrency(amount) {
   const value = amount || 0;
   return value.toLocaleString('he-IL', { style: 'currency', currency: 'ILS' });
 }
-
