@@ -27,14 +27,24 @@ const TransactionForm = ({ mode = 'create', initialData = null, type = 'income',
   }, [type]);
 
   useEffect(() => {
+    if (form.type === 'expense' && !form.category && categories.length > 0) {
+      setForm(prev => ({ ...prev, category: categories[0].value }));
+    }
+  }, [categories, form.type]);
+
+
+
+  useEffect(() => {
     getExpenseCategories()
       .then(res => {
-        setCategories(res.data);
+        const formatted = res.data.map(cat => ({
+          value: cat.value || cat,
+          label: cat.label || cat
+        }));
+        setCategories(formatted);
       })
       .catch(err => console.error(err));
   }, []);
-
-
 
   useEffect(() => {
     if (isEdit && initialData) {
@@ -53,7 +63,12 @@ const TransactionForm = ({ mode = 'create', initialData = null, type = 'income',
   };
 
   const handleSubmit = e => {
+    debugger
     e.preventDefault();
+    if (form.type === 'expense' && !form.category) {
+      alert("בחר קטגוריה לפני שמירה");
+      return;
+    }
     const transactionData = {
       user: user._id,
       type: form.type,
@@ -64,10 +79,10 @@ const TransactionForm = ({ mode = 'create', initialData = null, type = 'income',
     if (onSubmit) onSubmit(transactionData);
   };
 
+
   return (
     <form onSubmit={handleSubmit} className="transaction-form">
       <h2>{isEdit ? 'Edit Transaction' : 'Add Transaction'}</h2>
-
       {/* סוג טרנזקציה */}
       <div className="form-group">
         <label>סוג</label>
@@ -78,7 +93,6 @@ const TransactionForm = ({ mode = 'create', initialData = null, type = 'income',
           placeholder="בחר סוג"
         />
       </div>
-
       {/* סכום */}
       <div className="form-group">
         <label>סכום</label>
@@ -90,7 +104,6 @@ const TransactionForm = ({ mode = 'create', initialData = null, type = 'income',
           required
         />
       </div>
-
       {/* תאריך */}
       <div className="form-group">
         <label>תאריך</label>
@@ -106,9 +119,9 @@ const TransactionForm = ({ mode = 'create', initialData = null, type = 'income',
         <div className="form-group">
           <label>קטגוריה</label>
           <FinanceSelect
-            value={form.category}            // value בלבד
-            options={categories}             // [{ value, label }, ...]
-            onChange={(val) => setForm(prev => ({ ...prev, category: val }))} // שולח רק val (value)
+            value={form.category}
+            options={categories}
+            onChange={(val) => setForm(prev => ({ ...prev, category: val.value || val }))}
             placeholder="בחר קטגוריה"
           />
 

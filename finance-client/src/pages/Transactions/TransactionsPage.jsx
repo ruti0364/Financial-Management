@@ -53,6 +53,8 @@ const TransactionsPage = () => {
 
   // --- שמירה (יצירה / עדכון) ---
   const handleFormSubmit = async (data) => {
+    console.log('Submitting transaction:', data);
+
     try {
       if (editTx) {
         await updateTransaction(editTx._id, data);
