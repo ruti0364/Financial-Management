@@ -2,7 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, Tooltip as ChartTooltip, CartesianGrid, ResponsiveContainer } from "recharts";
-import { Wallet, ArrowDownCircle, PiggyBank, UserRound } from "lucide-react";
+import { Wallet, ArrowDownCircle, PiggyBank } from "lucide-react";
+import { KpiCard } from 'components/common/KpiCard/KpiCard';
 import "./HomePage.scss";
 
 // נתוני דוגמה
@@ -83,8 +84,8 @@ export default function HomePage() {
                 <XAxis dataKey="name" />
                 <YAxis />
                 <ChartTooltip formatter={(value) => formatCurrency(Number(value))} />
-                <Bar dataKey="income" name="הכנסות" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="expense" name="הוצאות" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="income" name="הכנסות" radius={[6, 6, 0, 0]} fill="var(--brand)"/>
+                <Bar dataKey="expense" name="הוצאות" radius={[6, 6, 0, 0]} fill="#ff4d4d"/>
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -102,8 +103,8 @@ export default function HomePage() {
                 <XAxis dataKey="name" />
                 <YAxis />
                 <ChartTooltip formatter={(value) => formatCurrency(Number(value))} />
-                <Bar dataKey="income" name="הכנסות" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="expense" name="הוצאות" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="income" name="הכנסות" radius={[6, 6, 0, 0]} fill="var(--brand)"/>
+                <Bar dataKey="expense" name="הוצאות" radius={[6, 6, 0, 0]} fill="#ff4d4d"/>
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -118,15 +119,3 @@ export default function HomePage() {
   );
 }
 
-function KpiCard({ title, value, caption, icon }) {
-  return (
-    <motion.div className="card kpi" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-      <div className="kpi-icon">{icon}</div>
-      <div className="kpi-main">
-        <h4>{title}</h4>
-        <div className="kpi-value">{value}</div>
-        <div className="kpi-caption">{caption}</div>
-      </div>
-    </motion.div>
-  );
-}

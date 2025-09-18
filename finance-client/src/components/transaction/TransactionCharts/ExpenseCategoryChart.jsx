@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import {
   PieChart, Pie, Tooltip, Cell, ResponsiveContainer, Label
 } from 'recharts';
-import { getAllTransactions } from 'api/transactionApi';
+import { getAllTransactions, getExpenseCategories } from 'api/transactionApi';
+import FinanceSelect from "components/common/FinanceSelect/FinanceSelect";
+import './Charts.scss';
 
 const COLORS = [
   '#00C49F', '#FF6384', '#36A2EB', '#FFCE56',
@@ -44,24 +46,28 @@ function generatePastMonths(count) {
   }).reverse();
 }
 
-const CenterLabel = ({ viewBox, month }) => {
-  const { cx, cy } = viewBox;
-  return (
-    <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: 14 }}>
-      {getHebrewMonthName(month)}
-    </text>
-  );
-};
-
 const ExpenseCategoryChart = () => {
   const [data, setData] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
+  const [categoriesMap, setCategoriesMap] = useState({}); // map value -> label
+
+  useEffect(() => {
+    // מביא את רשימת הקטגוריות עם label
+    getExpenseCategories().then(res => {
+      const map = res.data.reduce((acc, cat) => {
+        acc[cat.value] = cat.label;
+        return acc;
+      }, {});
+      setCategoriesMap(map);
+    }).catch(err => console.error(err));
+  }, []);
 
   useEffect(() => {
     fetchCategoryData();
-  }, [selectedMonth]);
+  }, [selectedMonth, categoriesMap]);
 
   const fetchCategoryData = async () => {
+    if (!categoriesMap) return;
     try {
       const { startDate, endDate } = getMonthDateRange(selectedMonth);
       const res = await getAllTransactions();
@@ -77,8 +83,8 @@ const ExpenseCategoryChart = () => {
       });
 
       const grouped = expenses.reduce((acc, tx) => {
-        const category = tx.category || 'לא מוגדר';
-        acc[category] = (acc[category] || 0) + Number(tx.sum);
+        const label = categoriesMap[tx.category] || 'לא מוגדר';
+        acc[label] = (acc[label] || 0) + Number(tx.sum);
         return acc;
       }, {});
 
@@ -95,79 +101,106 @@ const ExpenseCategoryChart = () => {
 
   const months = generatePastMonths(12);
 
-  return (
-    <div style={{ width: '100%', height: 440 }}>
-      <h3 style={{ textAlign: 'center' }}>התפלגות הוצאות לפי קטגוריות</h3>
+  function CenterLabel({ month }) {
+    return (
+      <text
+        x="50%"
+        y="50%"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fill="#fff"
+        fontSize="16"
+        fontWeight="400"
+      >
+        {month}
+      </text>
+    );
+  }
 
-      <div style={{ textAlign: 'center', marginBottom: 12 }}>
-        <label>
-          הצג חודש:
-          <select
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-            style={{ marginInlineStart: 8 }}
-          >
-            {months.map(month => (
-              <option key={month} value={month}>
-                {getHebrewMonthName(month)}
-              </option>
-            ))}
-          </select>
-        </label>
+  function formatMonthYear(value) {
+    if (!value) return "";
+    if (typeof value === "string" && /^\d{4}-\d{2}$/.test(value)) {
+      const [year, month] = value.split("-");
+      return `${month}/${year}`;
+    }
+    return value.toString();
+  }
+
+  return (
+    <>
+      <div>
+        <div className='year-select'>
+          <label style={{ display: "block", marginBottom: "1rem" }}>
+            הצג חודש:
+            <FinanceSelect
+              value={selectedMonth}
+              onChange={(val) => setSelectedMonth(val)}
+              options={months.map(month => ({
+                value: month,
+                label: getHebrewMonthName(month)
+              }))}
+              placeholder="בחר חודש"
+            />
+          </label>
+        </div>
       </div>
 
-      {data.length === 0 ? (
-        <div style={{ textAlign: 'center', color: '#888', fontSize: '16px', marginTop: '40px' }}>
-          אין נתונים לחודש {getHebrewMonthName(selectedMonth)}
-        </div>
-      ) : (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <ResponsiveContainer width={300} height={300}>
-            <PieChart>
-              <Pie
-                data={data}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={100}
-              >
-                {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-                <Label content={<CenterLabel month={selectedMonth} />} position="center" />
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            marginInlineStart: 24,
-            flexWrap: 'wrap',
-            maxHeight: 300
-          }}>
-            {data.map((entry, index) => (
-              <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
-                <div style={{
-                  width: 12,
-                  height: 12,
-                  backgroundColor: COLORS[index % COLORS.length],
-                  borderRadius: '50%',
-                  marginInlineEnd: 8
-                }} />
-                <span>
-                  {entry.value.toLocaleString('he-IL')} ₪ {entry.name}
-                </span>
-              </div>
-            ))}
+      <div className='chart expense-category-chart'>
+        <h3 style={{ textAlign: 'center' }}>התפלגות הוצאות לפי קטגוריות</h3>
+        {data.length === 0 ? (
+          <div className='no-data'>
+            <label>אין נתונים לחודש {getHebrewMonthName(selectedMonth)}</label>
           </div>
-        </div>
-      )}
-    </div>
+        ) : (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <ResponsiveContainer width={300} height={300}>
+              <PieChart>
+                <Pie
+                  data={data}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={100}
+                >
+                  {data.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                  <Label className='currenet-month' content={<CenterLabel month={formatMonthYear(selectedMonth)} />} position="center" />
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              marginInlineStart: 24,
+              flexWrap: 'wrap',
+              maxHeight: 300
+            }}>
+              {data.map((entry, index) => (
+                <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
+                  <div style={{
+                    width: 12,
+                    height: 12,
+                    backgroundColor: COLORS[index % COLORS.length],
+                    borderRadius: '50%',
+                    marginInlineEnd: 8
+                  }} />
+                  <span>
+                    {entry.value.toLocaleString('he-IL')} ₪ {entry.name}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
 export default ExpenseCategoryChart;
+
