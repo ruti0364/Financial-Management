@@ -1,93 +1,3 @@
-// import React, { useEffect, useState } from 'react';
-// import { useAuth } from 'context/AuthContext';
-// import api from 'api/axios';
-// import TransactionForm from 'components/transaction/transactionForm/transactionForm';
-// import TransactionTable from 'components/transaction/transactionTable/transactionTable';
-// import ExpenseCategoryChart from 'components/transaction/TransactionCharts/ExpenseCategoryChart';
-// import TransactionChart from 'components/transaction/TransactionCharts/TransactionChart';
-// import BalanceSummary from 'components/transaction/BalanceSummary/BalanceSummary';
-// import './TransactionsPage.scss';
-// function TransactionsPage() {
-//   const { user, loading } = useAuth();
-//   const [type, setType] = useState('expense');
-//   const [transactions, setTransactions] = useState([]);
-//   const [refreshFlag, setRefreshFlag] = useState(false);
-
-// if (loading) return <p>טוען...</p>;
-// if (!user) return <p>לא מחובר</p>;
-
-//   const fetchTransactions = async () => {
-//     try {
-//       const res = await api.get('/transactions');
-//       setTransactions(res.data);
-//     } catch (err) {
-//       console.error('Error fetching transactions:', err);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchTransactions();
-//   }, []);
-
-//   const handleTransactionAdded = () => {
-//     fetchTransactions();
-//   };
-//  const handleCreate = async (data) => {
-//     await createTransaction(data);
-//     fetchTransactions();
-//     setIsModalOpen(false);
-//   };
-
-//   const handleUpdate = async (data) => {
-//     await updateTransaction(editTx._id, data);
-//     fetchTransactions();
-//     setEditTx(null);
-//     setIsModalOpen(false);
-//   };
-
-//   const handleDelete = async (id) => {
-//     await deleteTransaction(id);
-//     fetchTransactions();
-//   };
-//   const triggerRefresh = () => setRefreshFlag(prev => !prev);
-
-//   return (
-//     <div className="dashboard-container">
-//       <h1 className="page-title">Personal Finance Tracker</h1>
-//       <div className="transaction-type">
-//         <h2>בחר סוג טרנזקציה</h2>
-//         <select value={type} onChange={e => setType(e.target.value)}>
-//           <option value="expense">הוצאה</option>
-//           <option value="income">הכנסה</option>
-//         </select>
-//       </div>
-
-//       {/* <TransactionForm type={type} onTransactionAdded={() => { handleTransactionAdded(); triggerRefresh(); }} /> */}
-//      <TransactionForm
-//             mode={editTx ? 'edit' : 'create'}
-//             initialData={editTx}
-//             onSubmit={editTx ? handleUpdate : handleCreate}
-//             onCancel={() => setIsModalOpen(false)}
-//           />
-//       <TransactionTable transactions={transactions} key={refreshFlag} />
-
-//       <div className="charts-container">
-// <div className="chart">
-//   <ExpenseCategoryChart transactions={transactions} key={refreshFlag} />
-// </div>
-//         <div className="chart">
-//           <TransactionChart transactions={transactions} key={refreshFlag} />
-//         </div>
-//       </div>
-
-//       <BalanceSummary transactions={transactions} />
-
-//       {/* <SavingsGoals /> */}
-//     </div>
-//   );
-// }
-
-// export default TransactionsPage;
 import React, { useEffect, useState } from 'react';
 import {
   getAllTransactions,
@@ -100,6 +10,8 @@ import TransactionForm from 'components/transaction/transactionForm/transactionF
 import TransactionsTable from 'components/transaction/transactionsTable/transactionsTable';
 import ExpenseCategoryChart from 'components/transaction/TransactionCharts/ExpenseCategoryChart';
 import TransactionChart from 'components/transaction/TransactionCharts/TransactionChart';
+import { Wallet, ArrowDownCircle, PiggyBank } from "lucide-react";
+import { KpiCard } from 'components/common/KpiCard/KpiCard';
 import './TransactionsPage.scss';
 
 const TransactionsPage = () => {
@@ -127,6 +39,17 @@ const TransactionsPage = () => {
   useEffect(() => {
     fetchTransactions();
   }, []);
+
+  // --- חישוב KPI: סה"כ הכנסות, הוצאות וחסכונות עם טיפול במקרה שאין נתונים ---
+  const totals = transactions.reduce(
+    (acc, tx) => {
+      if (tx.type === 'income') acc.income += Number(tx.sum) || 0;
+      if (tx.type === 'expense') acc.expense += Number(tx.sum) || 0;
+      return acc;
+    },
+    { income: 0, expense: 0 }
+  );
+  totals.savings = totals.income - totals.expense;
 
   // --- שמירה (יצירה / עדכון) ---
   const handleFormSubmit = async (data) => {
@@ -165,32 +88,40 @@ const TransactionsPage = () => {
           setIsModalOpen(true);
         }}
       >
-        + Add Transaction
+        + הוסף פעולה חדשה
       </button>
-
-      {/* טופס יצירה / עריכה */}
       {isModalOpen && (
         <div className="modal">
-          <div className="transaction-type">
-            <h2>בחר סוג טרנזקציה</h2>
-            <select value={type} onChange={(e) => setType(e.target.value)}>
-              <option value="income">הכנסה</option>
-              <option value="expense">הוצאה</option>
-            </select>
-          </div>
-
           <TransactionForm
-            type={type}
-            mode={editTx ? 'edit' : 'create'}
             initialData={editTx}
+            mode={editTx ? 'edit' : 'create'}
             onSubmit={handleFormSubmit}
-            onCancel={() => {
-              setEditTx(null);
-              setIsModalOpen(false);
-            }}
+            onCancel={() => setIsModalOpen(false)}
           />
         </div>
       )}
+
+      {/* KPI CARDS */}
+      <section className="grid kpis">
+        <KpiCard
+          title="סה'כ הכנסות"
+          value={formatCurrency(totals.income)}
+          icon={<Wallet />}
+          caption="במצטבר לחצי שנה"
+        />
+        <KpiCard
+         title="סה'כ הוצאות"
+          value={formatCurrency(totals.expense)}
+          icon={<ArrowDownCircle />}
+          caption="במצטבר לחצי שנה"
+        />
+        <KpiCard
+          title="סה'כ חסכונות"
+          value={formatCurrency(totals.income - totals.expense)}
+          icon={<PiggyBank />}
+          caption="הכנסות פחות הוצאות"
+        />
+      </section>
 
       {/* טבלה */}
       <TransactionsTable
@@ -204,22 +135,22 @@ const TransactionsPage = () => {
       />
 
       {/* גרפים */}
-      <div className="chart">
+      <h2>התפלגות הוצאות והכנסות בגרפים</h2>
+      <div>
         <TransactionChart transactions={transactions} key={transactions.length} />
       </div>
-      <div className="chart">
+      <div>
         <ExpenseCategoryChart transactions={transactions} key={transactions.length + '-exp'} />
       </div>
-
     </div>
   );
 };
 
 export default TransactionsPage;
 
-
-
-
-
-
+// --- פונקציית פורמט כסף עם טיפול במקרה שאין סכום ---
+function formatCurrency(amount) {
+  const value = amount || 0;
+  return value.toLocaleString('he-IL', { style: 'currency', currency: 'ILS' });
+}
 
