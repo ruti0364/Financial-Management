@@ -82,7 +82,7 @@ const TransactionForm = ({ mode = 'create', initialData = null, type = 'income',
 
   return (
     <form onSubmit={handleSubmit} className="transaction-form">
-      <h2>{isEdit ? 'Edit Transaction' : 'Add Transaction'}</h2>
+      <h2>{isEdit ? 'ערוך פעולה  ' : 'הוסף פעולה '}</h2>
       {/* סוג טרנזקציה */}
       <div className="form-group">
         <label>סוג</label>
